@@ -1,0 +1,8 @@
+dist
+node_modules
+test/temp/*
+.*
+!.gitignore
+!.github
+!.prettierignore
+!test/temp/README.md
