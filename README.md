@@ -49,16 +49,15 @@ export const views = {
 };
 ```
 
-**Step 3:** Create your models, specifying both fields and relationships with other models
+**Step 3:** Create your models
 
 ```typescript
-// Person.module.ts
+// Person.ts
 
-import { sql } from "slonik";
-import { createModel, createRelationships } from "graphql-sprout";
+import { createModel } from "graphql-sprout";
 import { views } from "../views";
 
-export const model = createModel({
+export const Person = createModel({
   name: "Person",
   view: views.Person,
   fields: ({ field, virtualField }) => {
@@ -80,12 +79,21 @@ export const model = createModel({
     ];
   },
 });
+```
 
-export const relationships = createRelationships(({ oneToMany }) => [
+Relationships are defined separately from models to avoid issues with circular dependencies.
+
+```typescript
+// PersonRelationships.ts
+
+import { createRelationships } from "graphql-sprout";
+import { Person } from "./Person";
+import { Post } from "./Post";
+
+export const PersonRelationships = createRelationships(({ oneToMany }) => [
   oneToMany({
     name: "posts",
-    // We can pass a Promise here so that we can use dynamic imports and avoid issues with circular dependencies
-    models: [model, import("./Post.module").then((module) => module.model)],
+    models: [Person, Post],
     // How the two models will be joined by the query builder. Each parameter here is typed based on the model's associated view columns
     join: (person, post) => sql`${person.id} = ${post.person_id}`,
   }),
@@ -96,14 +104,19 @@ export const relationships = createRelationships(({ oneToMany }) => [
 
 ```typescript
 import { createSchemaComponents } from "graphql-sprout";
-import * as Person from "./Person.module";
-import * as Post from "./Post.module";
+import { Person } from "./Person";
+import { PersonRelationships } from "./PersonRelationships";
+import { Post } from "./Post";
 
 const {
   typeDefs,
   resolvers,
+  schema,
   createQueryBuilder,
-} = await createSchemaComponents({ Person, Post });
+} = await createSchemaComponents({
+  models: { Person, Post },
+  relationships: [...PersonRelationships],
+});
 ```
 
 This generates base type definitions and resolvers that you can build on top of when creating your schema.
@@ -158,6 +171,8 @@ type Post {
   ): PostLikedByConnection!
 }
 ```
+
+> Note: In addition to typeDefs and resolvers, `createSchemaComponents` also returns a schema object. While this schema cannot be used on its own (it has no root types), it can be used with tools like GraphQL Code Generator and the GraphQL VS Code extension as shown [here](https://www.graphql-code-generator.com/docs/getting-started/schema-field#javascript-export).
 
 **Step 5:** Use the query builder inside your schema to generate complete SQL queries right from the root of your schema.
 

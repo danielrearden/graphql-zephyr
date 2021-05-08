@@ -136,7 +136,7 @@ export type OneToOneRelationship<
   TModelB extends Model<any>
 > = {
   name: string;
-  models: [TModelA | Promise<TModelA>, TModelB | Promise<TModelB>];
+  models: [TModelA, TModelB];
   nullable?: boolean;
   args?: string;
   join: (
@@ -151,7 +151,7 @@ export type OneToManyRelationship<
   TModelB extends Model<any>
 > = {
   name: string;
-  models: [TModelA | Promise<TModelA>, TModelB | Promise<TModelB>];
+  models: [TModelA, TModelB];
   connectionTypePrefix?: string;
   args?: string;
   join: (
@@ -171,7 +171,7 @@ export type ManyToManyRelationship<
   TJunctionView extends View
 > = {
   name: string;
-  models: [TModelA | Promise<TModelA>, TModelB | Promise<TModelB>];
+  models: [TModelA, TModelB];
   connectionTypePrefix?: string;
   junctionView: TJunctionView;
   args?: string;
@@ -240,35 +240,22 @@ export type QueryBuilderContext = {
   views: Map<string, View>;
 };
 
-export type GraphQLSproutModule<TView extends View> = {
-  model: Model<TView>;
-  relationships?: RelationshipConfig[];
-};
-
-export type QueryBuilder<
-  TModules extends Record<string, GraphQLSproutModule<any>>
-> = {
+export type QueryBuilder<TModels extends Record<string, Model<any>>> = {
   models: {
-    [ModuleName in keyof TModules]: {
+    [ModelName in keyof TModels]: {
       findOne: (options: {
         info: GraphQLResolveInfo;
         where: (
-          view: IdentifiersFrom<
-            TModules[ModuleName]["model"]["view"]["columns"]
-          >
+          view: IdentifiersFrom<TModels[ModelName]["view"]["columns"]>
         ) => SqlTokenType;
       }) => Promise<unknown>;
       getRelayConnection: (options: {
         info: GraphQLResolveInfo;
         where?: (
-          view: IdentifiersFrom<
-            TModules[ModuleName]["model"]["view"]["columns"]
-          >
+          view: IdentifiersFrom<TModels[ModelName]["view"]["columns"]>
         ) => SqlTokenType;
         orderBy: (
-          view: IdentifiersFrom<
-            TModules[ModuleName]["model"]["view"]["columns"]
-          >
+          view: IdentifiersFrom<TModels[ModelName]["view"]["columns"]>
         ) => [SqlTokenType, OrderByDirection][];
       }) => Promise<unknown>;
     };

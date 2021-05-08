@@ -1,4 +1,4 @@
-import { GraphQLResolveInfo } from "graphql";
+import { buildSchema, GraphQLResolveInfo, GraphQLSchema } from "graphql";
 import {
   DatabasePoolType,
   sql,
@@ -10,12 +10,12 @@ import {
   BuiltInDataType,
   ColumnType,
   FieldInfo,
-  GraphQLSproutModule,
   Model,
   OrderByDirection,
   QueryBuilder,
   QueryBuilderContext,
   QueryBuilderRelationshipMap,
+  RelationshipConfig,
   View,
 } from "../types";
 import {
@@ -70,19 +70,23 @@ const convertViewColumnTypeToGraphQLType = (
   return "String";
 };
 
-export const createSchemaComponents = async <
-  TModules extends Record<string, GraphQLSproutModule<any>>
->(
-  modules: TModules,
-  options?: {
-    customTypeMapper?: { [key in BuiltInDataType]?: string };
-  }
-): Promise<{
+export const createSchemaComponents = <
+  TModels extends Record<string, Model<any>>
+>({
+  models,
+  relationships,
+  customTypeMapper,
+}: {
+  models: TModels;
+  relationships: RelationshipConfig[];
+  customTypeMapper?: { [key in BuiltInDataType]?: string };
+}): {
+  createQueryBuilder: (pool: DatabasePoolType) => QueryBuilder<TModels>;
   resolvers: Record<string, any>;
+  schema: GraphQLSchema;
   typeDefs: string;
-  createQueryBuilder: (pool: DatabasePoolType) => QueryBuilder<TModules>;
-}> => {
-  const moduleInfo = {} as Record<
+} => {
+  const modelInfo = {} as Record<
     string,
     {
       columnsByField: Record<string, string[]>;
@@ -90,7 +94,7 @@ export const createSchemaComponents = async <
     }
   >;
   const resolvers: any = {};
-  const typeDefs = [
+  const definitions = [
     [
       "type PageInfo {",
       "  endCursor: String!",
@@ -102,8 +106,7 @@ export const createSchemaComponents = async <
   ];
   const enumTypes = new Map<string, string>();
 
-  for (const moduleName of Object.keys(modules)) {
-    const { model, relationships = [] } = modules[moduleName];
+  for (const model of Object.values(models)) {
     const typeName = upperFirst(model.name);
     const view: View = model.view;
     const fieldDefinitions = [];
@@ -134,7 +137,7 @@ export const createSchemaComponents = async <
       if (!field.isVirtual && !type) {
         type = `${convertViewColumnTypeToGraphQLType(
           view.columns[field.name],
-          options?.customTypeMapper
+          customTypeMapper
         )}${field.nullable ? "" : "!"}`;
       }
 
@@ -152,8 +155,11 @@ export const createSchemaComponents = async <
     }
 
     // Add field definitions for each relationships and any related type definitions
-    for (const relationship of relationships) {
-      const relatedModel = await relationship.models[1];
+    const modelRelationships = relationships.filter(
+      ({ models }) => models[0].name === model.name
+    );
+    for (const relationship of modelRelationships) {
+      const relatedModel = relationship.models[1];
       const relatedTypeName = upperFirst(relatedModel.name);
 
       // @todo support returning a plain list instead of always returning a Relay Connection
@@ -180,7 +186,7 @@ export const createSchemaComponents = async <
         );
 
         // Add the connection and edge types to the type definitions
-        typeDefs.push(
+        definitions.push(
           [
             `type ${connectionTypeName} {`,
             `  edges: [${edgeTypeName}!]!`,
@@ -249,9 +255,11 @@ export const createSchemaComponents = async <
 
     // Add the type for the model to the type definitions
     // @todo allow additional properties to be exposed on each edge
-    typeDefs.push([`type ${typeName} {`, ...fieldDefinitions, "}"].join("\n"));
+    definitions.push(
+      [`type ${typeName} {`, ...fieldDefinitions, "}"].join("\n")
+    );
 
-    moduleInfo[moduleName] = { columnsByField, relationshipMap };
+    modelInfo[model.name] = { columnsByField, relationshipMap };
 
     // Generate a GraphQL enum for any Postgres enum type used in the view
     for (let columnType of Object.values(view.columns)) {
@@ -284,7 +292,7 @@ export const createSchemaComponents = async <
     }
 
     const { getIdentifier } = context;
-    const { columnsByField, relationshipMap } = moduleInfo[model.name];
+    const { columnsByField, relationshipMap } = modelInfo[model.name];
 
     const jsonBuildObjectArgs = [];
     const selectedColumns = new Map<string, string>();
@@ -648,10 +656,10 @@ export const createSchemaComponents = async <
 
   const createQueryBuilder = (pool: DatabasePoolType) => {
     return {
-      models: Object.keys(modules).reduce((acc, moduleName) => {
-        acc[moduleName as keyof TModules] = {
+      models: Object.keys(models).reduce((acc, modelName) => {
+        acc[modelName as keyof TModels] = {
           findOne: async ({ info, where }) => {
-            const { model } = modules[moduleName];
+            const model = models[modelName];
             const context = createContext();
             const tableAlias = context.getIdentifier(model.view.name);
             const fieldInfo = parseResolveInfo(info)!;
@@ -678,7 +686,7 @@ export const createSchemaComponents = async <
             `);
           },
           getRelayConnection: async ({ info, orderBy, where }) => {
-            const { model } = modules[moduleName];
+            const model = models[modelName];
             const context = createContext();
             const tableAlias = context.getIdentifier(model.view.name);
             const fieldInfo = parseResolveInfo(info)!;
@@ -710,13 +718,17 @@ export const createSchemaComponents = async <
         };
 
         return acc;
-      }, {} as QueryBuilder<TModules>["models"]),
+      }, {} as QueryBuilder<TModels>["models"]),
     };
   };
+
+  const typeDefs = [...definitions, ...enumTypes.values()].join("\n\n");
+  const schema = buildSchema(typeDefs);
 
   return {
     createQueryBuilder,
     resolvers,
-    typeDefs: [...typeDefs, ...enumTypes.values()].join("\n\n"),
+    typeDefs,
+    schema,
   };
 };

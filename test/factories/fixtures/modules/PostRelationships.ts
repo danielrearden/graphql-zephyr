@@ -1,36 +1,21 @@
 import { sql } from "slonik";
-import { createModel, createRelationships } from "../../../../lib/factories";
+import { createRelationships } from "../../../../lib/factories";
 import { views } from "../views";
+import { Comment } from "./Comment";
+import { Person } from "./Person";
+import { Post } from "./Post";
 
-export const model = createModel({
-  name: "Post",
-  view: views.Post,
-  fields: ({ field }) => {
-    return [
-      field({
-        name: "id",
-      }),
-      field({
-        name: "body",
-      }),
-    ];
-  },
-});
-
-export const relationships = createRelationships(
+export const PostRelationships = createRelationships(
   ({ oneToMany, manyToMany }) => [
     oneToMany({
       name: "comments",
-      models: [
-        model,
-        import("./Comment.module").then((module) => module.model),
-      ],
+      models: [Post, Comment],
       join: (post, comment) => sql`${post.id} = ${comment.post_id}`,
       orderBy: (comment) => [[comment.id, "ASC"]],
     }),
     manyToMany({
       name: "likedBy",
-      models: [model, import("./Person.module").then((module) => module.model)],
+      models: [Post, Person],
       junctionView: views.PostLike,
       join: (post, postLike, person) => [
         sql`${post.id} = $${postLike.post_id}`,

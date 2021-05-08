@@ -6,7 +6,7 @@ import { createPool, sql } from "slonik";
 import { createQueryLoggingInterceptor } from "slonik-interceptor-query-logging";
 
 import { createSchemaComponents } from "../../lib/factories";
-import { modules } from "./fixtures/modules";
+import { models, relationships } from "./fixtures/modules";
 
 const POSTGRES_DSN = process.env.POSTGRES_DSN ?? "postgres://";
 
@@ -15,8 +15,11 @@ describe("createComponents", () => {
     interceptors: [createQueryLoggingInterceptor()],
   });
 
-  test("generates the correct typeDefs and resolvers", async () => {
-    const { typeDefs, resolvers } = await createSchemaComponents(modules);
+  test.only("generates the correct typeDefs and resolvers", async () => {
+    const { typeDefs, resolvers, schema } = createSchemaComponents({
+      models,
+      relationships,
+    });
     expect(typeDefs).toMatchInlineSnapshot(`
       "type PageInfo {
         endCursor: String!
@@ -87,14 +90,56 @@ describe("createComponents", () => {
         },
       }
     `);
+    expect(schema).toMatchInlineSnapshot(`
+      GraphQLSchema {
+        "__validationErrors": undefined,
+        "_directives": Array [
+          "@include",
+          "@skip",
+          "@deprecated",
+          "@specifiedBy",
+        ],
+        "_implementationsMap": Object {},
+        "_mutationType": undefined,
+        "_queryType": undefined,
+        "_subTypeMap": Object {},
+        "_subscriptionType": undefined,
+        "_typeMap": Object {
+          "Boolean": "Boolean",
+          "Comment": "Comment",
+          "Int": "Int",
+          "PageInfo": "PageInfo",
+          "Person": "Person",
+          "PersonPostsConnection": "PersonPostsConnection",
+          "PersonPostsEdge": "PersonPostsEdge",
+          "Post": "Post",
+          "PostCommentsConnection": "PostCommentsConnection",
+          "PostCommentsEdge": "PostCommentsEdge",
+          "PostLikedByConnection": "PostLikedByConnection",
+          "PostLikedByEdge": "PostLikedByEdge",
+          "String": "String",
+          "__Directive": "__Directive",
+          "__DirectiveLocation": "__DirectiveLocation",
+          "__EnumValue": "__EnumValue",
+          "__Field": "__Field",
+          "__InputValue": "__InputValue",
+          "__Schema": "__Schema",
+          "__Type": "__Type",
+          "__TypeKind": "__TypeKind",
+        },
+        "astNode": undefined,
+        "description": undefined,
+        "extensionASTNodes": Array [],
+        "extensions": undefined,
+      }
+    `);
   });
 
   test("builds and executes queries", async () => {
-    const {
-      typeDefs,
-      resolvers,
-      createQueryBuilder,
-    } = await createSchemaComponents(modules);
+    const { typeDefs, resolvers, createQueryBuilder } = createSchemaComponents({
+      models,
+      relationships,
+    });
     const queryBuilder = createQueryBuilder(pool);
     const schema = makeExecutableSchema({
       typeDefs: [

@@ -1,5 +1,14 @@
-import * as Comment from "./Comment.module";
-import * as Person from "./Person.module";
-import * as Post from "./Post.module";
+import { Comment } from "./Comment";
+import { CommentRelationships } from "./CommentRelationships";
+import { Person } from "./Person";
+import { PersonRelationships } from "./PersonRelationships";
+import { Post } from "./Post";
+import { PostRelationships } from "./PostRelationships";
 
-export const modules = { Comment, Person, Post };
+export const models = { Comment, Person, Post };
+
+export const relationships = [
+  ...CommentRelationships,
+  ...PersonRelationships,
+  ...PostRelationships,
+];
