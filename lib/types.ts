@@ -73,7 +73,6 @@ export interface View {
 
 export interface Model<TView extends View> {
   fields: ModelFields<TView>;
-  name: string;
   view: TView;
 }
 

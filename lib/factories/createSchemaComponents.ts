@@ -86,9 +86,10 @@ export const createSchemaComponents = <
   schema: GraphQLSchema;
   typeDefs: string;
 } => {
-  const modelInfo = {} as Record<
-    string,
+  const modelInfo = {} as Map<
+    Model<any>,
     {
+      name: string;
       columnsByField: Record<string, string[]>;
       relationshipMap: QueryBuilderRelationshipMap;
     }
@@ -106,7 +107,8 @@ export const createSchemaComponents = <
   ];
   const enumTypes = new Map<string, string>();
 
-  for (const model of Object.values(models)) {
+  for (const modelName of Object.keys(models)) {
+    const model = models[modelName];
     const view: View = model.view;
     const fieldDefinitions = [];
     const fields = model.fields({
@@ -127,7 +129,7 @@ export const createSchemaComponents = <
     const relationshipMap: QueryBuilderRelationshipMap = {};
 
     // Add the type to the resolver map
-    resolvers[model.name] = {};
+    resolvers[modelName] = {};
 
     // Add regular and virtual fields to the field definitions for the type
     for (const field of fields) {
@@ -144,7 +146,7 @@ export const createSchemaComponents = <
 
       // If a custom resolver was provided, add it to the resolver map
       if (field.resolve) {
-        resolvers[model.name][field.name] = field.resolve;
+        resolvers[modelName][field.name] = field.resolve;
       }
 
       // Capture column dependencies for each field
@@ -155,7 +157,7 @@ export const createSchemaComponents = <
 
     // Add field definitions for each relationships and any related type definitions
     const modelRelationships = relationships.filter(
-      ({ models }) => models[0].name === model.name
+      ({ models }) => models[0] === model
     );
     for (const relationship of modelRelationships) {
       const relatedModel = relationship.models[1];
@@ -170,7 +172,7 @@ export const createSchemaComponents = <
       } else {
         const connectionTypePrefix =
           relationship.connectionTypePrefix ??
-          `${model.name}${upperFirst(relationship.name)}`;
+          `${modelName}${upperFirst(relationship.name)}`;
         const connectionTypeName = connectionTypePrefix + "Connection";
         const edgeTypeName = connectionTypePrefix + "Edge";
 
@@ -200,7 +202,7 @@ export const createSchemaComponents = <
         );
 
         // Add resolver logic for the connection field
-        resolvers[model.name][relationship.name] = (
+        resolvers[modelName][relationship.name] = (
           source: any,
           args: any,
           _ctx: any,
@@ -254,22 +256,22 @@ export const createSchemaComponents = <
     // Add the type for the model to the type definitions
     // @todo allow additional properties to be exposed on each edge
     typeDefinitions.push(
-      [`type ${model.name} {`, ...fieldDefinitions, "}"].join("\n"),
+      [`type ${modelName} {`, ...fieldDefinitions, "}"].join("\n"),
       [
-        `type ${model.name}Connection {`,
-        `  edges: [${model.name}Edge!]!`,
+        `type ${modelName}Connection {`,
+        `  edges: [${modelName}Edge!]!`,
         "  pageInfo: PageInfo!",
         "}",
       ].join("\n"),
       [
-        `type ${model.name}Edge {`,
+        `type ${modelName}Edge {`,
         `  cursor: String!`,
-        `  node: ${model.name}!`,
+        `  node: ${modelName}!`,
         "}",
       ].join("\n")
     );
 
-    modelInfo[model.name] = { columnsByField, relationshipMap };
+    modelInfo.set(model, { name: modelName, columnsByField, relationshipMap });
 
     // Generate a GraphQL enum for any Postgres enum type used in the view
     for (let columnType of Object.values(view.columns)) {
@@ -302,7 +304,7 @@ export const createSchemaComponents = <
     }
 
     const { getIdentifier } = context;
-    const { columnsByField, relationshipMap } = modelInfo[model.name];
+    const { columnsByField, relationshipMap } = modelInfo.get(model)!;
 
     const jsonBuildObjectArgs = [];
     const selectedColumns = new Map<string, string>();
