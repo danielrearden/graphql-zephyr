@@ -34,6 +34,16 @@ describe("createComponents", () => {
         author: Person!
       }
 
+      type CommentConnection {
+        edges: [CommentEdge!]!
+        pageInfo: PageInfo!
+      }
+
+      type CommentEdge {
+        cursor: String!
+        node: Comment!
+      }
+
       type PersonPostsConnection {
         edges: [PersonPostsEdge!]!
         pageInfo: PageInfo!
@@ -48,6 +58,16 @@ describe("createComponents", () => {
         id: Int!
         fullName: String!
         posts(after: String, before: String, first: Int, last: Int): PersonPostsConnection!
+      }
+
+      type PersonConnection {
+        edges: [PersonEdge!]!
+        pageInfo: PageInfo!
+      }
+
+      type PersonEdge {
+        cursor: String!
+        node: Person!
       }
 
       type PostCommentsConnection {
@@ -75,6 +95,16 @@ describe("createComponents", () => {
         body: String!
         comments(after: String, before: String, first: Int, last: Int): PostCommentsConnection!
         likedBy(after: String, before: String, first: Int, last: Int): PostLikedByConnection!
+      }
+
+      type PostConnection {
+        edges: [PostEdge!]!
+        pageInfo: PageInfo!
+      }
+
+      type PostEdge {
+        cursor: String!
+        node: Post!
       }"
     `);
     expect(resolvers).toMatchInlineSnapshot(`
@@ -107,14 +137,20 @@ describe("createComponents", () => {
         "_typeMap": Object {
           "Boolean": "Boolean",
           "Comment": "Comment",
+          "CommentConnection": "CommentConnection",
+          "CommentEdge": "CommentEdge",
           "Int": "Int",
           "PageInfo": "PageInfo",
           "Person": "Person",
+          "PersonConnection": "PersonConnection",
+          "PersonEdge": "PersonEdge",
           "PersonPostsConnection": "PersonPostsConnection",
           "PersonPostsEdge": "PersonPostsEdge",
           "Post": "Post",
           "PostCommentsConnection": "PostCommentsConnection",
           "PostCommentsEdge": "PostCommentsEdge",
+          "PostConnection": "PostConnection",
+          "PostEdge": "PostEdge",
           "PostLikedByConnection": "PostLikedByConnection",
           "PostLikedByEdge": "PostLikedByEdge",
           "String": "String",

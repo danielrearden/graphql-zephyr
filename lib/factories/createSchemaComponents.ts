@@ -94,7 +94,7 @@ export const createSchemaComponents = <
     }
   >;
   const resolvers: any = {};
-  const definitions = [
+  const typeDefinitions = [
     [
       "type PageInfo {",
       "  endCursor: String!",
@@ -107,7 +107,6 @@ export const createSchemaComponents = <
   const enumTypes = new Map<string, string>();
 
   for (const model of Object.values(models)) {
-    const typeName = upperFirst(model.name);
     const view: View = model.view;
     const fieldDefinitions = [];
     const fields = model.fields({
@@ -128,7 +127,7 @@ export const createSchemaComponents = <
     const relationshipMap: QueryBuilderRelationshipMap = {};
 
     // Add the type to the resolver map
-    resolvers[typeName] = {};
+    resolvers[model.name] = {};
 
     // Add regular and virtual fields to the field definitions for the type
     for (const field of fields) {
@@ -145,7 +144,7 @@ export const createSchemaComponents = <
 
       // If a custom resolver was provided, add it to the resolver map
       if (field.resolve) {
-        resolvers[typeName][field.name] = field.resolve;
+        resolvers[model.name][field.name] = field.resolve;
       }
 
       // Capture column dependencies for each field
@@ -160,19 +159,18 @@ export const createSchemaComponents = <
     );
     for (const relationship of modelRelationships) {
       const relatedModel = relationship.models[1];
-      const relatedTypeName = upperFirst(relatedModel.name);
 
       // @todo support returning a plain list instead of always returning a Relay Connection
       if (relationship.type === "ONE_TO_ONE") {
         fieldDefinitions.push(
           `  ${relationship.name}${
             relationship.args ? `(${relationship.args})` : ""
-          }: ${relatedTypeName}${Boolean(relationship.nullable) ? "" : "!"}`
+          }: ${relatedModel.name}${Boolean(relationship.nullable) ? "" : "!"}`
         );
       } else {
         const connectionTypePrefix =
           relationship.connectionTypePrefix ??
-          `${upperFirst(model.name)}${upperFirst(relationship.name)}`;
+          `${model.name}${upperFirst(relationship.name)}`;
         const connectionTypeName = connectionTypePrefix + "Connection";
         const edgeTypeName = connectionTypePrefix + "Edge";
 
@@ -186,7 +184,7 @@ export const createSchemaComponents = <
         );
 
         // Add the connection and edge types to the type definitions
-        definitions.push(
+        typeDefinitions.push(
           [
             `type ${connectionTypeName} {`,
             `  edges: [${edgeTypeName}!]!`,
@@ -196,13 +194,13 @@ export const createSchemaComponents = <
           [
             `type ${edgeTypeName} {`,
             `  cursor: String!`,
-            `  node: ${relatedTypeName}!`,
+            `  node: ${relatedModel.name}!`,
             "}",
           ].join("\n")
         );
 
         // Add resolver logic for the connection field
-        resolvers[typeName][relationship.name] = (
+        resolvers[model.name][relationship.name] = (
           source: any,
           args: any,
           _ctx: any,
@@ -255,8 +253,20 @@ export const createSchemaComponents = <
 
     // Add the type for the model to the type definitions
     // @todo allow additional properties to be exposed on each edge
-    definitions.push(
-      [`type ${typeName} {`, ...fieldDefinitions, "}"].join("\n")
+    typeDefinitions.push(
+      [`type ${model.name} {`, ...fieldDefinitions, "}"].join("\n"),
+      [
+        `type ${model.name}Connection {`,
+        `  edges: [${model.name}Edge!]!`,
+        "  pageInfo: PageInfo!",
+        "}",
+      ].join("\n"),
+      [
+        `type ${model.name}Edge {`,
+        `  cursor: String!`,
+        `  node: ${model.name}!`,
+        "}",
+      ].join("\n")
     );
 
     modelInfo[model.name] = { columnsByField, relationshipMap };
@@ -722,7 +732,7 @@ export const createSchemaComponents = <
     };
   };
 
-  const typeDefs = [...definitions, ...enumTypes.values()].join("\n\n");
+  const typeDefs = [...typeDefinitions, ...enumTypes.values()].join("\n\n");
   const schema = buildSchema(typeDefs);
 
   return {
