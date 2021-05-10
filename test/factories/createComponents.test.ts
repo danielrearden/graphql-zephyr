@@ -6,7 +6,7 @@ import { createPool, sql } from "slonik";
 import { createQueryLoggingInterceptor } from "slonik-interceptor-query-logging";
 
 import { createSchemaComponents } from "../../lib/factories";
-import { models, relationships } from "./fixtures/modules";
+import { models, relationships } from "./fixtures/models";
 
 const POSTGRES_DSN = process.env.POSTGRES_DSN ?? "postgres://";
 
@@ -109,13 +109,19 @@ describe("createComponents", () => {
     `);
     expect(resolvers).toMatchInlineSnapshot(`
       Object {
-        "Comment": Object {},
+        "Comment": Object {
+          "body": [Function],
+          "id": [Function],
+        },
         "Person": Object {
           "fullName": [Function],
+          "id": [Function],
           "posts": [Function],
         },
         "Post": Object {
+          "body": [Function],
           "comments": [Function],
+          "id": [Function],
           "likedBy": [Function],
         },
       }

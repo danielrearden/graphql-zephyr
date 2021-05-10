@@ -4,13 +4,13 @@ import { views } from "../views";
 export const Post = createModel({
   view: views.Post,
   fields: ({ field }) => {
-    return [
-      field({
-        name: "id",
+    return {
+      id: field({
+        column: "id",
       }),
-      field({
-        name: "body",
+      body: field({
+        column: "body",
       }),
-    ];
+    };
   },
 });

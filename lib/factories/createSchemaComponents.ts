@@ -86,14 +86,14 @@ export const createSchemaComponents = <
   schema: GraphQLSchema;
   typeDefs: string;
 } => {
-  const modelInfo = {} as Map<
+  const modelInfo = new Map<
     Model<any>,
     {
       name: string;
       columnsByField: Record<string, string[]>;
       relationshipMap: QueryBuilderRelationshipMap;
     }
-  >;
+  >();
   const resolvers: any = {};
   const typeDefinitions = [
     [
@@ -112,18 +112,19 @@ export const createSchemaComponents = <
     const view: View = model.view;
     const fieldDefinitions = [];
     const fields = model.fields({
-      field: (options) => ({
-        ...options,
-        name: options.name as string,
-        column: options.name as string,
-        isVirtual: false,
-      }),
-      virtualField: (options) => ({
-        ...options,
-        name: options.name as string,
-        columns: options.columns as string[],
-        isVirtual: true,
-      }),
+      field: (options) => {
+        return "column" in options
+          ? {
+              ...options,
+              columns: [options.column] as string[],
+              isVirtual: false,
+            }
+          : {
+              ...options,
+              columns: options.columns as string[],
+              isVirtual: true,
+            };
+      },
     });
     const columnsByField: Record<string, string[]> = {};
     const relationshipMap: QueryBuilderRelationshipMap = {};
@@ -132,27 +133,30 @@ export const createSchemaComponents = <
     resolvers[modelName] = {};
 
     // Add regular and virtual fields to the field definitions for the type
-    for (const field of fields) {
+    for (const fieldName of Object.keys(fields)) {
+      const field = fields[fieldName];
       let type = field.type;
 
       if (!field.isVirtual && !type) {
         type = `${convertViewColumnTypeToGraphQLType(
-          view.columns[field.name],
+          view.columns[fieldName],
           customTypeMapper
         )}${field.nullable ? "" : "!"}`;
       }
 
-      fieldDefinitions.push(`  ${field.name}: ${type}`);
+      fieldDefinitions.push(`  ${fieldName}: ${type}`);
 
       // If a custom resolver was provided, add it to the resolver map
       if (field.resolve) {
-        resolvers[modelName][field.name] = field.resolve;
+        resolvers[modelName][fieldName] = field.resolve;
+      } else {
+        resolvers[modelName][fieldName] = (source: any) => {
+          return source[field.columns[0]];
+        };
       }
 
       // Capture column dependencies for each field
-      columnsByField[field.name] = field.isVirtual
-        ? field.columns
-        : [field.name];
+      columnsByField[fieldName] = field.columns;
     }
 
     // Add field definitions for each relationships and any related type definitions
@@ -161,13 +165,16 @@ export const createSchemaComponents = <
     );
     for (const relationship of modelRelationships) {
       const relatedModel = relationship.models[1];
+      const relatedModelName = Object.keys(models).find(
+        (modelName) => models[modelName] === relatedModel
+      );
 
       // @todo support returning a plain list instead of always returning a Relay Connection
       if (relationship.type === "ONE_TO_ONE") {
         fieldDefinitions.push(
           `  ${relationship.name}${
             relationship.args ? `(${relationship.args})` : ""
-          }: ${relatedModel.name}${Boolean(relationship.nullable) ? "" : "!"}`
+          }: ${relatedModelName}${Boolean(relationship.nullable) ? "" : "!"}`
         );
       } else {
         const connectionTypePrefix =
@@ -196,7 +203,7 @@ export const createSchemaComponents = <
           [
             `type ${edgeTypeName} {`,
             `  cursor: String!`,
-            `  node: ${relatedModel.name}!`,
+            `  node: ${relatedModelName}!`,
             "}",
           ].join("\n")
         );

@@ -77,35 +77,36 @@ export interface Model<TView extends View> {
 }
 
 export type ModelFields<TView extends View> = (utilities: {
-  field: <TColumns extends keyof TView["type"]>(options: {
-    name: TColumns;
-    nullable?: boolean;
-    type?: string;
-    resolve?: (
-      source: Pick<TView["type"], TColumns>,
-      args: any,
-      ctx: any,
-      info: GraphQLResolveInfo
-    ) => any;
-  }) => ModelFieldConfig;
-  virtualField: <TColumns extends keyof TView["type"]>(options: {
-    name: string;
-    type: string;
-    columns: TColumns[];
-    resolve: (
-      source: Pick<TView["type"], TColumns>,
-      args: any,
-      ctx: any,
-      info: GraphQLResolveInfo
-    ) => any;
-  }) => ModelFieldConfig;
-}) => ModelFieldConfig[];
+  field: <TColumns extends keyof TView["type"]>(
+    options:
+      | {
+          column: TColumns;
+          nullable?: boolean;
+          type?: string;
+          resolve?: (
+            source: Pick<TView["type"], TColumns>,
+            args: any,
+            ctx: any,
+            info: GraphQLResolveInfo
+          ) => any;
+        }
+      | {
+          columns: TColumns[];
+          type: string;
+          resolve: (
+            source: Pick<TView["type"], TColumns>,
+            args: any,
+            ctx: any,
+            info: GraphQLResolveInfo
+          ) => any;
+        }
+  ) => ModelFieldConfig;
+}) => Record<string, ModelFieldConfig>;
 
 export type ModelFieldConfig =
   | {
       isVirtual: false;
-      name: string;
-      column: string;
+      columns: string[];
       nullable?: boolean;
       type?: string;
       resolve?: (
@@ -117,7 +118,6 @@ export type ModelFieldConfig =
     }
   | {
       isVirtual: true;
-      name: string;
       columns: string[];
       type: string;
       resolve: (

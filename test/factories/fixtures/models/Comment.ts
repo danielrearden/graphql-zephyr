@@ -4,13 +4,13 @@ import { views } from "../views";
 export const Comment = createModel({
   view: views.Comment,
   fields: ({ field }) => {
-    return [
-      field({
-        name: "id",
+    return {
+      id: field({
+        column: "id",
       }),
-      field({
-        name: "body",
+      body: field({
+        column: "body",
       }),
-    ];
+    };
   },
 });
