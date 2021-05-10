@@ -58,21 +58,19 @@ import { createModel } from "graphql-sprout";
 import { views } from "../views";
 
 export const Person = createModel({
-  name: "Person",
   view: views.Person,
-  fields: ({ field, virtualField }) => {
-    return [
-      // Regular fields map directly to columns in your view
-      field({
-        name: "id",
+  fields: ({ field }) => {
+    return {
+      // Fields can map directly to a view column
+      id: field({
+        column: "id",
       }),
-      // Virtual fields let you specify a dependency on one or more columns and provide custom resolver logic
-      virtualField({
-        name: "fullName",
+      // Or multiple columns
+      fullName: field({
         // Note: this is an arbitrary example. In practice, you'd just return "fullName" as a column on your view.
-        columns: ["full_name"],
+        columns: ["first_name", "last_name"],
         // The resolver here is correctly typed based on the generated view
-        resolve: ({ full_name }) => full_name,
+        resolve: ({ first_name, last_name }) => `${first_name} ${last_name}`,
         // For regular columns, the types are implied from the view columns, but here we have to specify our own
         type: "String!",
       }),
