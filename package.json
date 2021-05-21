@@ -1,5 +1,5 @@
 {
-  "name": "graphql-sprout",
+  "name": "graphql-zephyr",
   "description": "Grow SQL queries from the root up! 🌱",
   "version": "0.0.1",
   "main": "dist/index.js",
@@ -31,7 +31,7 @@
     "dist"
   ],
   "bin": {
-    "graphql-sprout": "dist/bin/index.js"
+    "graphql-zephyr": "dist/bin/index.js"
   },
   "scripts": {
     "prepare": "rimraf dist && tsc",

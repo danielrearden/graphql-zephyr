@@ -71,10 +71,10 @@ export const assertValidConfig = <
 
   if (errors.length) {
     console.log(
-      "GraphQL Sprout configuration is invlid. The following issues were found:"
+      "GraphQL Zephyr configuration is invlid. The following issues were found:"
     );
     errors.forEach(console.log);
 
-    throw new Error("Invalid GraphQL Sprout configuration");
+    throw new Error("Invalid GraphQL Zephyr configuration");
   }
 };

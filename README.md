@@ -1,6 +1,6 @@
-# GraphQL Sprout
+# GraphQL Zephyr
 
-> Grow SQL queries from the root up! 🌱
+> Making Postgres and GraphQL a breeze 🌬️
 
 ## Usage
 
@@ -20,7 +20,7 @@ Here we're using a single table, but views can be queries of arbitrary complexit
 **Step 2:** Generate the views from the SQL files using the CLI
 
 ```shell
-graphql-sprout views/*.sql generated/views.ts
+graphql-zephyr views/*.sql generated/views.ts
 ```
 
 This creates a TypeScript file for you like this:
@@ -54,10 +54,11 @@ export const views = {
 ```typescript
 // Person.ts
 
-import { createModel } from "graphql-sprout";
+import { createModel } from "graphql-zephyr";
 import { views } from "../views";
 
 export const Person = createModel({
+  name: "Person",
   view: views.Person,
   fields: ({ field }) => {
     return {
@@ -84,7 +85,7 @@ Relationships are defined separately from models to avoid issues with circular d
 ```typescript
 // PersonRelationships.ts
 
-import { createRelationships } from "graphql-sprout";
+import { createRelationships } from "graphql-zephyr";
 import { Person } from "./Person";
 import { Post } from "./Post";
 
@@ -101,7 +102,7 @@ export const PersonRelationships = createRelationships(({ oneToMany }) => [
 **Step 4:** Use your models to generate components for a base GraphQL schema
 
 ```typescript
-import { createSchemaComponents } from "graphql-sprout";
+import { createSchemaComponents } from "graphql-zephyr";
 import { Person } from "./Person";
 import { PersonRelationships } from "./PersonRelationships";
 import { Post } from "./Post";

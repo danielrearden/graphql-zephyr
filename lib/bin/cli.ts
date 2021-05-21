@@ -30,8 +30,8 @@ const convertColumnTypeToTSType = (columnType: ColumnType): string => {
   }
 };
 
-export const cli = new Command("GraphQL Sprout CLI")
-  .description("Generates GraphQL Sprout view files from SQL files", {
+export const cli = new Command("GraphQL Zephyr CLI")
+  .description("Generates GraphQL Zephyr view files from SQL files", {
     input: "Glob pattern matching the the SQL files to use",
     output: "Path where to write the generated file",
   })
