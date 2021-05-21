@@ -1,0 +1,1091 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`createComponents abstract models 1`] = `
+Object {
+  "a": Object {
+    "body": "Nulla neque libero, convallis eget, eleifend luctus, ultricies eu, nibh. Quisque id justo sit amet sapien dignissim vestibulum. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Nulla dapibus dolor vel est. Donec odio justo, sollicitudin ut, suscipit a, feugiat et, eros. Vestibulum ac est lacinia nisi venenatis tristique. Fusce congue, diam id ornare imperdiet, sapien urna pretium nisl, ut volutpat sapien arcu sed augue. Aliquam erat volutpat.",
+    "id": "WyJQb3N0IixudWxsXQ==",
+  },
+  "b": Object {
+    "fullName": "Tedi Flinn",
+    "id": "WyJQZXJzb24iLG51bGxd",
+  },
+}
+`;
+
+exports[`createComponents backward pagination 1`] = `
+Object {
+  "post": Object {
+    "a": Object {
+      "edges": Array [
+        Object {
+          "cursor": "WzY0XQ==",
+          "node": Object {
+            "body": "Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec pharetra, magna vestibulum aliquet ultrices, erat tortor sollicitudin mi, sit amet lobortis sapien sapien non mi. Integer ac neque. Duis bibendum. Morbi non quam nec dui luctus rutrum. Nulla tellus. In sagittis dui vel nisl. Duis ac nibh. Fusce lacus purus, aliquet at, feugiat non, pretium quis, lectus. Suspendisse potenti. In eleifend quam a odio.",
+            "id": "WyJDb21tZW50Iiw2NF0=",
+          },
+        },
+        Object {
+          "cursor": "WzY2XQ==",
+          "node": Object {
+            "body": "Donec ut mauris eget massa tempor convallis. Nulla neque libero, convallis eget, eleifend luctus, ultricies eu, nibh. Quisque id justo sit amet sapien dignissim vestibulum. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Nulla dapibus dolor vel est. Donec odio justo, sollicitudin ut, suscipit a, feugiat et, eros. Vestibulum ac est lacinia nisi venenatis tristique. Fusce congue, diam id ornare imperdiet, sapien urna pretium nisl, ut volutpat sapien arcu sed augue. Aliquam erat volutpat. In congue.",
+            "id": "WyJDb21tZW50Iiw2Nl0=",
+          },
+        },
+      ],
+      "pageInfo": Object {
+        "endCursor": "WzY2XQ==",
+        "hasNextPage": false,
+        "hasPreviousPage": true,
+        "startCursor": "WzY0XQ==",
+      },
+    },
+    "b": Object {
+      "edges": Array [
+        Object {
+          "cursor": "WzY0XQ==",
+          "node": Object {
+            "body": "Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec pharetra, magna vestibulum aliquet ultrices, erat tortor sollicitudin mi, sit amet lobortis sapien sapien non mi. Integer ac neque. Duis bibendum. Morbi non quam nec dui luctus rutrum. Nulla tellus. In sagittis dui vel nisl. Duis ac nibh. Fusce lacus purus, aliquet at, feugiat non, pretium quis, lectus. Suspendisse potenti. In eleifend quam a odio.",
+            "id": "WyJDb21tZW50Iiw2NF0=",
+          },
+        },
+      ],
+      "pageInfo": Object {
+        "endCursor": "WzY0XQ==",
+        "hasNextPage": true,
+        "hasPreviousPage": true,
+        "startCursor": "WzY0XQ==",
+      },
+    },
+    "c": Object {
+      "edges": Array [
+        Object {
+          "cursor": "WzEyXQ==",
+          "node": Object {
+            "body": "Fusce lacus purus, aliquet at, feugiat non, pretium quis, lectus. Suspendisse potenti. In eleifend quam a odio. In hac habitasse platea dictumst. Maecenas ut massa quis augue luctus tincidunt. Nulla mollis molestie lorem. Quisque ut erat. Curabitur gravida nisi at nibh.",
+            "id": "WyJDb21tZW50IiwxMl0=",
+          },
+        },
+        Object {
+          "cursor": "WzY0XQ==",
+          "node": Object {
+            "body": "Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec pharetra, magna vestibulum aliquet ultrices, erat tortor sollicitudin mi, sit amet lobortis sapien sapien non mi. Integer ac neque. Duis bibendum. Morbi non quam nec dui luctus rutrum. Nulla tellus. In sagittis dui vel nisl. Duis ac nibh. Fusce lacus purus, aliquet at, feugiat non, pretium quis, lectus. Suspendisse potenti. In eleifend quam a odio.",
+            "id": "WyJDb21tZW50Iiw2NF0=",
+          },
+        },
+      ],
+      "pageInfo": Object {
+        "endCursor": "WzY0XQ==",
+        "hasNextPage": true,
+        "hasPreviousPage": false,
+        "startCursor": "WzEyXQ==",
+      },
+    },
+    "d": Object {
+      "edges": Array [],
+      "pageInfo": Object {
+        "endCursor": null,
+        "hasNextPage": true,
+        "hasPreviousPage": false,
+        "startCursor": null,
+      },
+    },
+  },
+}
+`;
+
+exports[`createComponents findOne 1`] = `
+Object {
+  "person": Object {
+    "fullName": "Tedi Flinn",
+    "id": "WyJQZXJzb24iLDFd",
+    "posts": Object {
+      "edges": Array [
+        Object {
+          "cursor": "WzQ0XQ==",
+          "node": Object {
+            "body": "Nulla facilisi. Cras non velit nec nisi vulputate nonummy. Maecenas tincidunt lacus at velit. Vivamus vel nulla eget eros elementum pellentesque.",
+            "comments": Object {
+              "edges": Array [],
+              "pageInfo": Object {
+                "endCursor": null,
+                "hasNextPage": false,
+                "hasPreviousPage": false,
+                "startCursor": null,
+              },
+            },
+            "id": "WyJQb3N0Iiw0NF0=",
+            "likedBy": Object {
+              "edges": Array [
+                Object {
+                  "cursor": "WzZd",
+                  "node": Object {
+                    "fullName": "Estel McLaggan",
+                    "id": "WyJQZXJzb24iLDZd",
+                  },
+                },
+                Object {
+                  "cursor": "Wzhd",
+                  "node": Object {
+                    "fullName": "Michel Mangam",
+                    "id": "WyJQZXJzb24iLDhd",
+                  },
+                },
+              ],
+              "pageInfo": Object {
+                "endCursor": "Wzhd",
+                "hasNextPage": false,
+                "hasPreviousPage": false,
+                "startCursor": "WzZd",
+              },
+            },
+          },
+        },
+        Object {
+          "cursor": "WzYwXQ==",
+          "node": Object {
+            "body": "Donec dapibus. Duis at velit eu est congue elementum. In hac habitasse platea dictumst. Morbi vestibulum, velit id pretium iaculis, diam erat fermentum justo, nec condimentum neque sapien placerat ante. Nulla justo. Aliquam quis turpis eget elit sodales scelerisque. Mauris sit amet eros. Suspendisse accumsan tortor quis turpis. Sed ante.",
+            "comments": Object {
+              "edges": Array [
+                Object {
+                  "cursor": "WzE4XQ==",
+                  "node": Object {
+                    "author": Object {
+                      "fullName": "Michel Mangam",
+                      "id": "WyJQZXJzb24iLDhd",
+                    },
+                    "body": "Morbi non lectus.",
+                    "id": "WyJDb21tZW50IiwxOF0=",
+                  },
+                },
+              ],
+              "pageInfo": Object {
+                "endCursor": "WzE4XQ==",
+                "hasNextPage": false,
+                "hasPreviousPage": false,
+                "startCursor": "WzE4XQ==",
+              },
+            },
+            "id": "WyJQb3N0Iiw2MF0=",
+            "likedBy": Object {
+              "edges": Array [],
+              "pageInfo": Object {
+                "endCursor": null,
+                "hasNextPage": false,
+                "hasPreviousPage": false,
+                "startCursor": null,
+              },
+            },
+          },
+        },
+        Object {
+          "cursor": "WzY2XQ==",
+          "node": Object {
+            "body": "Donec odio justo, sollicitudin ut, suscipit a, feugiat et, eros.",
+            "comments": Object {
+              "edges": Array [
+                Object {
+                  "cursor": "WzJd",
+                  "node": Object {
+                    "author": Object {
+                      "fullName": "Delora Prop",
+                      "id": "WyJQZXJzb24iLDld",
+                    },
+                    "body": "Duis bibendum, felis sed interdum venenatis, turpis enim blandit mi, in porttitor pede justo eu massa. Donec dapibus. Duis at velit eu est congue elementum. In hac habitasse platea dictumst. Morbi vestibulum, velit id pretium iaculis, diam erat fermentum justo, nec condimentum neque sapien placerat ante.",
+                    "id": "WyJDb21tZW50IiwyXQ==",
+                  },
+                },
+                Object {
+                  "cursor": "WzY1XQ==",
+                  "node": Object {
+                    "author": Object {
+                      "fullName": "Michel Mangam",
+                      "id": "WyJQZXJzb24iLDhd",
+                    },
+                    "body": "Vivamus metus arcu, adipiscing molestie, hendrerit at, vulputate vitae, nisl. Aenean lectus.",
+                    "id": "WyJDb21tZW50Iiw2NV0=",
+                  },
+                },
+              ],
+              "pageInfo": Object {
+                "endCursor": "WzY1XQ==",
+                "hasNextPage": false,
+                "hasPreviousPage": false,
+                "startCursor": "WzJd",
+              },
+            },
+            "id": "WyJQb3N0Iiw2Nl0=",
+            "likedBy": Object {
+              "edges": Array [
+                Object {
+                  "cursor": "WzJd",
+                  "node": Object {
+                    "fullName": "Shena Inker",
+                    "id": "WyJQZXJzb24iLDJd",
+                  },
+                },
+                Object {
+                  "cursor": "WzVd",
+                  "node": Object {
+                    "fullName": "Nerti Tollfree",
+                    "id": "WyJQZXJzb24iLDVd",
+                  },
+                },
+              ],
+              "pageInfo": Object {
+                "endCursor": "WzVd",
+                "hasNextPage": false,
+                "hasPreviousPage": false,
+                "startCursor": "WzJd",
+              },
+            },
+          },
+        },
+        Object {
+          "cursor": "WzY3XQ==",
+          "node": Object {
+            "body": "Cras non velit nec nisi vulputate nonummy. Maecenas tincidunt lacus at velit.",
+            "comments": Object {
+              "edges": Array [
+                Object {
+                  "cursor": "WzEyXQ==",
+                  "node": Object {
+                    "author": Object {
+                      "fullName": "Euell Wordington",
+                      "id": "WyJQZXJzb24iLDRd",
+                    },
+                    "body": "Fusce lacus purus, aliquet at, feugiat non, pretium quis, lectus. Suspendisse potenti. In eleifend quam a odio. In hac habitasse platea dictumst. Maecenas ut massa quis augue luctus tincidunt. Nulla mollis molestie lorem. Quisque ut erat. Curabitur gravida nisi at nibh.",
+                    "id": "WyJDb21tZW50IiwxMl0=",
+                  },
+                },
+                Object {
+                  "cursor": "WzY0XQ==",
+                  "node": Object {
+                    "author": Object {
+                      "fullName": "Nerti Tollfree",
+                      "id": "WyJQZXJzb24iLDVd",
+                    },
+                    "body": "Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec pharetra, magna vestibulum aliquet ultrices, erat tortor sollicitudin mi, sit amet lobortis sapien sapien non mi. Integer ac neque. Duis bibendum. Morbi non quam nec dui luctus rutrum. Nulla tellus. In sagittis dui vel nisl. Duis ac nibh. Fusce lacus purus, aliquet at, feugiat non, pretium quis, lectus. Suspendisse potenti. In eleifend quam a odio.",
+                    "id": "WyJDb21tZW50Iiw2NF0=",
+                  },
+                },
+                Object {
+                  "cursor": "WzY2XQ==",
+                  "node": Object {
+                    "author": Object {
+                      "fullName": "Crystie Mellmoth",
+                      "id": "WyJQZXJzb24iLDdd",
+                    },
+                    "body": "Donec ut mauris eget massa tempor convallis. Nulla neque libero, convallis eget, eleifend luctus, ultricies eu, nibh. Quisque id justo sit amet sapien dignissim vestibulum. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Nulla dapibus dolor vel est. Donec odio justo, sollicitudin ut, suscipit a, feugiat et, eros. Vestibulum ac est lacinia nisi venenatis tristique. Fusce congue, diam id ornare imperdiet, sapien urna pretium nisl, ut volutpat sapien arcu sed augue. Aliquam erat volutpat. In congue.",
+                    "id": "WyJDb21tZW50Iiw2Nl0=",
+                  },
+                },
+              ],
+              "pageInfo": Object {
+                "endCursor": "WzY2XQ==",
+                "hasNextPage": false,
+                "hasPreviousPage": false,
+                "startCursor": "WzEyXQ==",
+              },
+            },
+            "id": "WyJQb3N0Iiw2N10=",
+            "likedBy": Object {
+              "edges": Array [
+                Object {
+                  "cursor": "WzRd",
+                  "node": Object {
+                    "fullName": "Euell Wordington",
+                    "id": "WyJQZXJzb24iLDRd",
+                  },
+                },
+                Object {
+                  "cursor": "Wzhd",
+                  "node": Object {
+                    "fullName": "Michel Mangam",
+                    "id": "WyJQZXJzb24iLDhd",
+                  },
+                },
+              ],
+              "pageInfo": Object {
+                "endCursor": "Wzhd",
+                "hasNextPage": false,
+                "hasPreviousPage": false,
+                "startCursor": "WzRd",
+              },
+            },
+          },
+        },
+        Object {
+          "cursor": "WzcyXQ==",
+          "node": Object {
+            "body": "Maecenas pulvinar lobortis est. Phasellus sit amet erat. Nulla tempus.",
+            "comments": Object {
+              "edges": Array [
+                Object {
+                  "cursor": "Wzg0XQ==",
+                  "node": Object {
+                    "author": Object {
+                      "fullName": "Nerti Tollfree",
+                      "id": "WyJQZXJzb24iLDVd",
+                    },
+                    "body": "Proin risus. Praesent lectus. Vestibulum quam sapien, varius ut, blandit non, interdum in, ante. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Duis faucibus accumsan odio. Curabitur convallis. Duis consequat dui nec nisi volutpat eleifend. Donec ut dolor.",
+                    "id": "WyJDb21tZW50Iiw4NF0=",
+                  },
+                },
+              ],
+              "pageInfo": Object {
+                "endCursor": "Wzg0XQ==",
+                "hasNextPage": false,
+                "hasPreviousPage": false,
+                "startCursor": "Wzg0XQ==",
+              },
+            },
+            "id": "WyJQb3N0Iiw3Ml0=",
+            "likedBy": Object {
+              "edges": Array [
+                Object {
+                  "cursor": "WzFd",
+                  "node": Object {
+                    "fullName": "Tedi Flinn",
+                    "id": "WyJQZXJzb24iLDFd",
+                  },
+                },
+                Object {
+                  "cursor": "WzJd",
+                  "node": Object {
+                    "fullName": "Shena Inker",
+                    "id": "WyJQZXJzb24iLDJd",
+                  },
+                },
+              ],
+              "pageInfo": Object {
+                "endCursor": "WzJd",
+                "hasNextPage": false,
+                "hasPreviousPage": false,
+                "startCursor": "WzFd",
+              },
+            },
+          },
+        },
+        Object {
+          "cursor": "Wzc4XQ==",
+          "node": Object {
+            "body": "Etiam vel augue. Vestibulum rutrum rutrum neque. Aenean auctor gravida sem. Praesent id massa id nisl venenatis lacinia.",
+            "comments": Object {
+              "edges": Array [],
+              "pageInfo": Object {
+                "endCursor": null,
+                "hasNextPage": false,
+                "hasPreviousPage": false,
+                "startCursor": null,
+              },
+            },
+            "id": "WyJQb3N0Iiw3OF0=",
+            "likedBy": Object {
+              "edges": Array [],
+              "pageInfo": Object {
+                "endCursor": null,
+                "hasNextPage": false,
+                "hasPreviousPage": false,
+                "startCursor": null,
+              },
+            },
+          },
+        },
+        Object {
+          "cursor": "WzkwXQ==",
+          "node": Object {
+            "body": "Donec diam neque, vestibulum eget, vulputate ut, ultrices vel, augue. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec pharetra, magna vestibulum aliquet ultrices, erat tortor sollicitudin mi, sit amet lobortis sapien sapien non mi. Integer ac neque. Duis bibendum. Morbi non quam nec dui luctus rutrum. Nulla tellus. In sagittis dui vel nisl. Duis ac nibh. Fusce lacus purus, aliquet at, feugiat non, pretium quis, lectus.",
+            "comments": Object {
+              "edges": Array [],
+              "pageInfo": Object {
+                "endCursor": null,
+                "hasNextPage": false,
+                "hasPreviousPage": false,
+                "startCursor": null,
+              },
+            },
+            "id": "WyJQb3N0Iiw5MF0=",
+            "likedBy": Object {
+              "edges": Array [
+                Object {
+                  "cursor": "WzVd",
+                  "node": Object {
+                    "fullName": "Nerti Tollfree",
+                    "id": "WyJQZXJzb24iLDVd",
+                  },
+                },
+                Object {
+                  "cursor": "Wzld",
+                  "node": Object {
+                    "fullName": "Delora Prop",
+                    "id": "WyJQZXJzb24iLDld",
+                  },
+                },
+              ],
+              "pageInfo": Object {
+                "endCursor": "Wzld",
+                "hasNextPage": false,
+                "hasPreviousPage": false,
+                "startCursor": "WzVd",
+              },
+            },
+          },
+        },
+        Object {
+          "cursor": "Wzk2XQ==",
+          "node": Object {
+            "body": "Suspendisse potenti. In eleifend quam a odio. In hac habitasse platea dictumst. Maecenas ut massa quis augue luctus tincidunt. Nulla mollis molestie lorem. Quisque ut erat. Curabitur gravida nisi at nibh. In hac habitasse platea dictumst. Aliquam augue quam, sollicitudin vitae, consectetuer eget, rutrum at, lorem. Integer tincidunt ante vel ipsum.",
+            "comments": Object {
+              "edges": Array [],
+              "pageInfo": Object {
+                "endCursor": null,
+                "hasNextPage": false,
+                "hasPreviousPage": false,
+                "startCursor": null,
+              },
+            },
+            "id": "WyJQb3N0Iiw5Nl0=",
+            "likedBy": Object {
+              "edges": Array [
+                Object {
+                  "cursor": "Wzdd",
+                  "node": Object {
+                    "fullName": "Crystie Mellmoth",
+                    "id": "WyJQZXJzb24iLDdd",
+                  },
+                },
+              ],
+              "pageInfo": Object {
+                "endCursor": "Wzdd",
+                "hasNextPage": false,
+                "hasPreviousPage": false,
+                "startCursor": "Wzdd",
+              },
+            },
+          },
+        },
+        Object {
+          "cursor": "WzEwMF0=",
+          "node": Object {
+            "body": "In congue. Etiam justo. Etiam pretium iaculis justo. In hac habitasse platea dictumst. Etiam faucibus cursus urna. Ut tellus. Nulla ut erat id mauris vulputate elementum.",
+            "comments": Object {
+              "edges": Array [
+                Object {
+                  "cursor": "Wzc2XQ==",
+                  "node": Object {
+                    "author": Object {
+                      "fullName": "Estel McLaggan",
+                      "id": "WyJQZXJzb24iLDZd",
+                    },
+                    "body": "Curabitur at ipsum ac tellus semper interdum. Mauris ullamcorper purus sit amet nulla. Quisque arcu libero, rutrum ac, lobortis vel, dapibus at, diam.",
+                    "id": "WyJDb21tZW50Iiw3Nl0=",
+                  },
+                },
+                Object {
+                  "cursor": "Wzk3XQ==",
+                  "node": Object {
+                    "author": Object {
+                      "fullName": "Aaron McDonell",
+                      "id": "WyJQZXJzb24iLDNd",
+                    },
+                    "body": "Integer tincidunt ante vel ipsum. Praesent blandit lacinia erat. Vestibulum sed magna at nunc commodo placerat. Praesent blandit. Nam nulla. Integer pede justo, lacinia eget, tincidunt eget, tempus vel, pede. Morbi porttitor lorem id ligula.",
+                    "id": "WyJDb21tZW50Iiw5N10=",
+                  },
+                },
+              ],
+              "pageInfo": Object {
+                "endCursor": "Wzk3XQ==",
+                "hasNextPage": false,
+                "hasPreviousPage": false,
+                "startCursor": "Wzc2XQ==",
+              },
+            },
+            "id": "WyJQb3N0IiwxMDBd",
+            "likedBy": Object {
+              "edges": Array [],
+              "pageInfo": Object {
+                "endCursor": null,
+                "hasNextPage": false,
+                "hasPreviousPage": false,
+                "startCursor": null,
+              },
+            },
+          },
+        },
+      ],
+      "pageInfo": Object {
+        "endCursor": "WzEwMF0=",
+        "hasNextPage": false,
+        "hasPreviousPage": false,
+        "startCursor": "WzQ0XQ==",
+      },
+    },
+  },
+}
+`;
+
+exports[`createComponents forward pagination 1`] = `
+Object {
+  "post": Object {
+    "a": Object {
+      "edges": Array [
+        Object {
+          "cursor": "WzEyXQ==",
+          "node": Object {
+            "body": "Fusce lacus purus, aliquet at, feugiat non, pretium quis, lectus. Suspendisse potenti. In eleifend quam a odio. In hac habitasse platea dictumst. Maecenas ut massa quis augue luctus tincidunt. Nulla mollis molestie lorem. Quisque ut erat. Curabitur gravida nisi at nibh.",
+            "id": "WyJDb21tZW50IiwxMl0=",
+          },
+        },
+        Object {
+          "cursor": "WzY0XQ==",
+          "node": Object {
+            "body": "Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec pharetra, magna vestibulum aliquet ultrices, erat tortor sollicitudin mi, sit amet lobortis sapien sapien non mi. Integer ac neque. Duis bibendum. Morbi non quam nec dui luctus rutrum. Nulla tellus. In sagittis dui vel nisl. Duis ac nibh. Fusce lacus purus, aliquet at, feugiat non, pretium quis, lectus. Suspendisse potenti. In eleifend quam a odio.",
+            "id": "WyJDb21tZW50Iiw2NF0=",
+          },
+        },
+      ],
+      "pageInfo": Object {
+        "endCursor": "WzY0XQ==",
+        "hasNextPage": true,
+        "hasPreviousPage": false,
+        "startCursor": "WzEyXQ==",
+      },
+    },
+    "b": Object {
+      "edges": Array [
+        Object {
+          "cursor": "WzY0XQ==",
+          "node": Object {
+            "body": "Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec pharetra, magna vestibulum aliquet ultrices, erat tortor sollicitudin mi, sit amet lobortis sapien sapien non mi. Integer ac neque. Duis bibendum. Morbi non quam nec dui luctus rutrum. Nulla tellus. In sagittis dui vel nisl. Duis ac nibh. Fusce lacus purus, aliquet at, feugiat non, pretium quis, lectus. Suspendisse potenti. In eleifend quam a odio.",
+            "id": "WyJDb21tZW50Iiw2NF0=",
+          },
+        },
+      ],
+      "pageInfo": Object {
+        "endCursor": "WzY0XQ==",
+        "hasNextPage": true,
+        "hasPreviousPage": true,
+        "startCursor": "WzY0XQ==",
+      },
+    },
+    "c": Object {
+      "edges": Array [
+        Object {
+          "cursor": "WzY0XQ==",
+          "node": Object {
+            "body": "Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec pharetra, magna vestibulum aliquet ultrices, erat tortor sollicitudin mi, sit amet lobortis sapien sapien non mi. Integer ac neque. Duis bibendum. Morbi non quam nec dui luctus rutrum. Nulla tellus. In sagittis dui vel nisl. Duis ac nibh. Fusce lacus purus, aliquet at, feugiat non, pretium quis, lectus. Suspendisse potenti. In eleifend quam a odio.",
+            "id": "WyJDb21tZW50Iiw2NF0=",
+          },
+        },
+        Object {
+          "cursor": "WzY2XQ==",
+          "node": Object {
+            "body": "Donec ut mauris eget massa tempor convallis. Nulla neque libero, convallis eget, eleifend luctus, ultricies eu, nibh. Quisque id justo sit amet sapien dignissim vestibulum. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Nulla dapibus dolor vel est. Donec odio justo, sollicitudin ut, suscipit a, feugiat et, eros. Vestibulum ac est lacinia nisi venenatis tristique. Fusce congue, diam id ornare imperdiet, sapien urna pretium nisl, ut volutpat sapien arcu sed augue. Aliquam erat volutpat. In congue.",
+            "id": "WyJDb21tZW50Iiw2Nl0=",
+          },
+        },
+      ],
+      "pageInfo": Object {
+        "endCursor": "WzY2XQ==",
+        "hasNextPage": false,
+        "hasPreviousPage": true,
+        "startCursor": "WzY0XQ==",
+      },
+    },
+    "d": Object {
+      "edges": Array [],
+      "pageInfo": Object {
+        "endCursor": null,
+        "hasNextPage": false,
+        "hasPreviousPage": true,
+        "startCursor": null,
+      },
+    },
+  },
+}
+`;
+
+exports[`createComponents getRelayConnection 1`] = `
+Object {
+  "people": Object {
+    "edges": Array [
+      Object {
+        "cursor": "WyJUZWRpIEZsaW5uIl0=",
+        "node": Object {
+          "fullName": "Tedi Flinn",
+          "id": "WyJQZXJzb24iLDFd",
+          "posts": Object {
+            "edges": Array [
+              Object {
+                "cursor": "WzQ0XQ==",
+                "node": Object {
+                  "body": "Nulla facilisi. Cras non velit nec nisi vulputate nonummy. Maecenas tincidunt lacus at velit. Vivamus vel nulla eget eros elementum pellentesque.",
+                  "id": "WyJQb3N0Iiw0NF0=",
+                },
+              },
+              Object {
+                "cursor": "WzYwXQ==",
+                "node": Object {
+                  "body": "Donec dapibus. Duis at velit eu est congue elementum. In hac habitasse platea dictumst. Morbi vestibulum, velit id pretium iaculis, diam erat fermentum justo, nec condimentum neque sapien placerat ante. Nulla justo. Aliquam quis turpis eget elit sodales scelerisque. Mauris sit amet eros. Suspendisse accumsan tortor quis turpis. Sed ante.",
+                  "id": "WyJQb3N0Iiw2MF0=",
+                },
+              },
+              Object {
+                "cursor": "WzY2XQ==",
+                "node": Object {
+                  "body": "Donec odio justo, sollicitudin ut, suscipit a, feugiat et, eros.",
+                  "id": "WyJQb3N0Iiw2Nl0=",
+                },
+              },
+              Object {
+                "cursor": "WzY3XQ==",
+                "node": Object {
+                  "body": "Cras non velit nec nisi vulputate nonummy. Maecenas tincidunt lacus at velit.",
+                  "id": "WyJQb3N0Iiw2N10=",
+                },
+              },
+              Object {
+                "cursor": "WzcyXQ==",
+                "node": Object {
+                  "body": "Maecenas pulvinar lobortis est. Phasellus sit amet erat. Nulla tempus.",
+                  "id": "WyJQb3N0Iiw3Ml0=",
+                },
+              },
+              Object {
+                "cursor": "Wzc4XQ==",
+                "node": Object {
+                  "body": "Etiam vel augue. Vestibulum rutrum rutrum neque. Aenean auctor gravida sem. Praesent id massa id nisl venenatis lacinia.",
+                  "id": "WyJQb3N0Iiw3OF0=",
+                },
+              },
+              Object {
+                "cursor": "WzkwXQ==",
+                "node": Object {
+                  "body": "Donec diam neque, vestibulum eget, vulputate ut, ultrices vel, augue. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec pharetra, magna vestibulum aliquet ultrices, erat tortor sollicitudin mi, sit amet lobortis sapien sapien non mi. Integer ac neque. Duis bibendum. Morbi non quam nec dui luctus rutrum. Nulla tellus. In sagittis dui vel nisl. Duis ac nibh. Fusce lacus purus, aliquet at, feugiat non, pretium quis, lectus.",
+                  "id": "WyJQb3N0Iiw5MF0=",
+                },
+              },
+              Object {
+                "cursor": "Wzk2XQ==",
+                "node": Object {
+                  "body": "Suspendisse potenti. In eleifend quam a odio. In hac habitasse platea dictumst. Maecenas ut massa quis augue luctus tincidunt. Nulla mollis molestie lorem. Quisque ut erat. Curabitur gravida nisi at nibh. In hac habitasse platea dictumst. Aliquam augue quam, sollicitudin vitae, consectetuer eget, rutrum at, lorem. Integer tincidunt ante vel ipsum.",
+                  "id": "WyJQb3N0Iiw5Nl0=",
+                },
+              },
+              Object {
+                "cursor": "WzEwMF0=",
+                "node": Object {
+                  "body": "In congue. Etiam justo. Etiam pretium iaculis justo. In hac habitasse platea dictumst. Etiam faucibus cursus urna. Ut tellus. Nulla ut erat id mauris vulputate elementum.",
+                  "id": "WyJQb3N0IiwxMDBd",
+                },
+              },
+            ],
+            "pageInfo": Object {
+              "endCursor": "WzEwMF0=",
+              "hasNextPage": false,
+              "hasPreviousPage": false,
+              "startCursor": "WzQ0XQ==",
+            },
+          },
+        },
+      },
+      Object {
+        "cursor": "WyJTaGVuYSBJbmtlciJd",
+        "node": Object {
+          "fullName": "Shena Inker",
+          "id": "WyJQZXJzb24iLDJd",
+          "posts": Object {
+            "edges": Array [
+              Object {
+                "cursor": "WzJd",
+                "node": Object {
+                  "body": "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Proin interdum mauris non ligula pellentesque ultrices. Phasellus id sapien in sapien iaculis congue. Vivamus metus arcu, adipiscing molestie, hendrerit at, vulputate vitae, nisl. Aenean lectus. Pellentesque eget nunc. Donec quis orci eget orci vehicula condimentum. Curabitur in libero ut massa volutpat convallis. Morbi odio odio, elementum eu, interdum eu, tincidunt in, leo. Maecenas pulvinar lobortis est.",
+                  "id": "WyJQb3N0IiwyXQ==",
+                },
+              },
+              Object {
+                "cursor": "WzVd",
+                "node": Object {
+                  "body": "Nulla justo. Aliquam quis turpis eget elit sodales scelerisque. Mauris sit amet eros. Suspendisse accumsan tortor quis turpis. Sed ante. Vivamus tortor. Duis mattis egestas metus. Aenean fermentum. Donec ut mauris eget massa tempor convallis.",
+                  "id": "WyJQb3N0Iiw1XQ==",
+                },
+              },
+              Object {
+                "cursor": "WzExXQ==",
+                "node": Object {
+                  "body": "Nullam molestie nibh in lectus. Pellentesque at nulla. Suspendisse potenti. Cras in purus eu magna vulputate luctus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vivamus vestibulum sagittis sapien.",
+                  "id": "WyJQb3N0IiwxMV0=",
+                },
+              },
+              Object {
+                "cursor": "WzE3XQ==",
+                "node": Object {
+                  "body": "Aliquam sit amet diam in magna bibendum imperdiet. Nullam orci pede, venenatis non, sodales sed, tincidunt eu, felis. Fusce posuere felis sed lacus.",
+                  "id": "WyJQb3N0IiwxN10=",
+                },
+              },
+              Object {
+                "cursor": "WzM2XQ==",
+                "node": Object {
+                  "body": "Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vivamus vestibulum sagittis sapien. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Etiam vel augue. Vestibulum rutrum rutrum neque. Aenean auctor gravida sem. Praesent id massa id nisl venenatis lacinia. Aenean sit amet justo. Morbi ut odio.",
+                  "id": "WyJQb3N0IiwzNl0=",
+                },
+              },
+              Object {
+                "cursor": "WzQ1XQ==",
+                "node": Object {
+                  "body": "Nullam orci pede, venenatis non, sodales sed, tincidunt eu, felis. Fusce posuere felis sed lacus. Morbi sem mauris, laoreet ut, rhoncus aliquet, pulvinar sed, nisl.",
+                  "id": "WyJQb3N0Iiw0NV0=",
+                },
+              },
+              Object {
+                "cursor": "WzU0XQ==",
+                "node": Object {
+                  "body": "Suspendisse accumsan tortor quis turpis. Sed ante. Vivamus tortor. Duis mattis egestas metus. Aenean fermentum. Donec ut mauris eget massa tempor convallis. Nulla neque libero, convallis eget, eleifend luctus, ultricies eu, nibh.",
+                  "id": "WyJQb3N0Iiw1NF0=",
+                },
+              },
+              Object {
+                "cursor": "WzU5XQ==",
+                "node": Object {
+                  "body": "Maecenas tristique, est et tempus semper, est quam pharetra magna, ac consequat metus sapien ut nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Mauris viverra diam vitae quam. Suspendisse potenti.",
+                  "id": "WyJQb3N0Iiw1OV0=",
+                },
+              },
+              Object {
+                "cursor": "WzYxXQ==",
+                "node": Object {
+                  "body": "Proin leo odio, porttitor id, consequat in, consequat ut, nulla. Sed accumsan felis. Ut at dolor quis odio consequat varius. Integer ac leo. Pellentesque ultrices mattis odio. Donec vitae nisi.",
+                  "id": "WyJQb3N0Iiw2MV0=",
+                },
+              },
+              Object {
+                "cursor": "Wzc1XQ==",
+                "node": Object {
+                  "body": "Curabitur convallis. Duis consequat dui nec nisi volutpat eleifend. Donec ut dolor.",
+                  "id": "WyJQb3N0Iiw3NV0=",
+                },
+              },
+              Object {
+                "cursor": "WzgwXQ==",
+                "node": Object {
+                  "body": "Sed accumsan felis. Ut at dolor quis odio consequat varius. Integer ac leo. Pellentesque ultrices mattis odio. Donec vitae nisi. Nam ultrices, libero non mattis pulvinar, nulla pede ullamcorper augue, a suscipit nulla elit ac nulla. Sed vel enim sit amet nunc viverra dapibus. Nulla suscipit ligula in lacus. Curabitur at ipsum ac tellus semper interdum.",
+                  "id": "WyJQb3N0Iiw4MF0=",
+                },
+              },
+              Object {
+                "cursor": "WzgxXQ==",
+                "node": Object {
+                  "body": "Cras pellentesque volutpat dui. Maecenas tristique, est et tempus semper, est quam pharetra magna, ac consequat metus sapien ut nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Mauris viverra diam vitae quam.",
+                  "id": "WyJQb3N0Iiw4MV0=",
+                },
+              },
+              Object {
+                "cursor": "Wzg0XQ==",
+                "node": Object {
+                  "body": "Fusce lacus purus, aliquet at, feugiat non, pretium quis, lectus. Suspendisse potenti. In eleifend quam a odio. In hac habitasse platea dictumst. Maecenas ut massa quis augue luctus tincidunt. Nulla mollis molestie lorem.",
+                  "id": "WyJQb3N0Iiw4NF0=",
+                },
+              },
+              Object {
+                "cursor": "WzkyXQ==",
+                "node": Object {
+                  "body": "Donec quis orci eget orci vehicula condimentum. Curabitur in libero ut massa volutpat convallis. Morbi odio odio, elementum eu, interdum eu, tincidunt in, leo. Maecenas pulvinar lobortis est. Phasellus sit amet erat.",
+                  "id": "WyJQb3N0Iiw5Ml0=",
+                },
+              },
+            ],
+            "pageInfo": Object {
+              "endCursor": "WzkyXQ==",
+              "hasNextPage": false,
+              "hasPreviousPage": false,
+              "startCursor": "WzJd",
+            },
+          },
+        },
+      },
+      Object {
+        "cursor": "WyJOZXJ0aSBUb2xsZnJlZSJd",
+        "node": Object {
+          "fullName": "Nerti Tollfree",
+          "id": "WyJQZXJzb24iLDVd",
+          "posts": Object {
+            "edges": Array [
+              Object {
+                "cursor": "WzFd",
+                "node": Object {
+                  "body": "Nulla neque libero, convallis eget, eleifend luctus, ultricies eu, nibh. Quisque id justo sit amet sapien dignissim vestibulum. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Nulla dapibus dolor vel est. Donec odio justo, sollicitudin ut, suscipit a, feugiat et, eros. Vestibulum ac est lacinia nisi venenatis tristique. Fusce congue, diam id ornare imperdiet, sapien urna pretium nisl, ut volutpat sapien arcu sed augue. Aliquam erat volutpat.",
+                  "id": "WyJQb3N0IiwxXQ==",
+                },
+              },
+              Object {
+                "cursor": "Wzhd",
+                "node": Object {
+                  "body": "Sed sagittis. Nam congue, risus semper porta volutpat, quam pede lobortis ligula, sit amet eleifend pede libero quis orci. Nullam molestie nibh in lectus.",
+                  "id": "WyJQb3N0Iiw4XQ==",
+                },
+              },
+              Object {
+                "cursor": "WzE5XQ==",
+                "node": Object {
+                  "body": "Fusce consequat.",
+                  "id": "WyJQb3N0IiwxOV0=",
+                },
+              },
+              Object {
+                "cursor": "WzI3XQ==",
+                "node": Object {
+                  "body": "Nunc rhoncus dui vel sem. Sed sagittis. Nam congue, risus semper porta volutpat, quam pede lobortis ligula, sit amet eleifend pede libero quis orci. Nullam molestie nibh in lectus. Pellentesque at nulla. Suspendisse potenti. Cras in purus eu magna vulputate luctus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vivamus vestibulum sagittis sapien. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.",
+                  "id": "WyJQb3N0IiwyN10=",
+                },
+              },
+              Object {
+                "cursor": "WzM5XQ==",
+                "node": Object {
+                  "body": "Curabitur convallis. Duis consequat dui nec nisi volutpat eleifend. Donec ut dolor.",
+                  "id": "WyJQb3N0IiwzOV0=",
+                },
+              },
+              Object {
+                "cursor": "WzQyXQ==",
+                "node": Object {
+                  "body": "In quis justo. Maecenas rhoncus aliquam lacus. Morbi quis tortor id nulla ultrices aliquet. Maecenas leo odio, condimentum id, luctus nec, molestie sed, justo. Pellentesque viverra pede ac diam. Cras pellentesque volutpat dui. Maecenas tristique, est et tempus semper, est quam pharetra magna, ac consequat metus sapien ut nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Mauris viverra diam vitae quam.",
+                  "id": "WyJQb3N0Iiw0Ml0=",
+                },
+              },
+              Object {
+                "cursor": "WzQzXQ==",
+                "node": Object {
+                  "body": "Pellentesque at nulla. Suspendisse potenti. Cras in purus eu magna vulputate luctus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vivamus vestibulum sagittis sapien. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Etiam vel augue. Vestibulum rutrum rutrum neque.",
+                  "id": "WyJQb3N0Iiw0M10=",
+                },
+              },
+              Object {
+                "cursor": "WzU4XQ==",
+                "node": Object {
+                  "body": "Nulla tempus.",
+                  "id": "WyJQb3N0Iiw1OF0=",
+                },
+              },
+              Object {
+                "cursor": "WzY0XQ==",
+                "node": Object {
+                  "body": "In hac habitasse platea dictumst. Aliquam augue quam, sollicitudin vitae, consectetuer eget, rutrum at, lorem. Integer tincidunt ante vel ipsum. Praesent blandit lacinia erat. Vestibulum sed magna at nunc commodo placerat. Praesent blandit.",
+                  "id": "WyJQb3N0Iiw2NF0=",
+                },
+              },
+              Object {
+                "cursor": "WzcwXQ==",
+                "node": Object {
+                  "body": "Cras mi pede, malesuada in, imperdiet et, commodo vulputate, justo. In blandit ultrices enim. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Proin interdum mauris non ligula pellentesque ultrices.",
+                  "id": "WyJQb3N0Iiw3MF0=",
+                },
+              },
+              Object {
+                "cursor": "Wzk0XQ==",
+                "node": Object {
+                  "body": "Nulla tellus. In sagittis dui vel nisl. Duis ac nibh. Fusce lacus purus, aliquet at, feugiat non, pretium quis, lectus.",
+                  "id": "WyJQb3N0Iiw5NF0=",
+                },
+              },
+              Object {
+                "cursor": "Wzk5XQ==",
+                "node": Object {
+                  "body": "In hac habitasse platea dictumst. Aliquam augue quam, sollicitudin vitae, consectetuer eget, rutrum at, lorem. Integer tincidunt ante vel ipsum. Praesent blandit lacinia erat. Vestibulum sed magna at nunc commodo placerat. Praesent blandit. Nam nulla. Integer pede justo, lacinia eget, tincidunt eget, tempus vel, pede. Morbi porttitor lorem id ligula.",
+                  "id": "WyJQb3N0Iiw5OV0=",
+                },
+              },
+            ],
+            "pageInfo": Object {
+              "endCursor": "Wzk5XQ==",
+              "hasNextPage": false,
+              "hasPreviousPage": false,
+              "startCursor": "WzFd",
+            },
+          },
+        },
+      },
+    ],
+    "pageInfo": Object {
+      "endCursor": "WyJOZXJ0aSBUb2xsZnJlZSJd",
+      "hasNextPage": true,
+      "hasPreviousPage": false,
+      "startCursor": "WyJUZWRpIEZsaW5uIl0=",
+    },
+  },
+}
+`;
+
+exports[`createComponents type definition and resolver generation 1`] = `
+"type PageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+}
+
+interface Node {
+  id: ID!
+}
+
+type Comment implements Node {
+  id: ID!
+  body: String!
+  author: Person!
+}
+
+type CommentConnection {
+  edges: [CommentEdge!]!
+  pageInfo: PageInfo!
+}
+
+type CommentEdge {
+  cursor: String!
+  node: Comment!
+}
+
+type PersonPostsConnection {
+  edges: [PersonPostsEdge!]!
+  pageInfo: PageInfo!
+}
+
+type PersonPostsEdge {
+  cursor: String!
+  node: Post!
+}
+
+type Person implements Node {
+  id: ID!
+  fullName: String!
+  posts(after: String, before: String, first: Int, last: Int): PersonPostsConnection!
+}
+
+type PersonConnection {
+  edges: [PersonEdge!]!
+  pageInfo: PageInfo!
+}
+
+type PersonEdge {
+  cursor: String!
+  node: Person!
+}
+
+type PostCommentsConnection {
+  edges: [PostCommentsEdge!]!
+  pageInfo: PageInfo!
+}
+
+type PostCommentsEdge {
+  cursor: String!
+  node: Comment!
+}
+
+type PostLikedByConnection {
+  edges: [PostLikedByEdge!]!
+  pageInfo: PageInfo!
+}
+
+type PostLikedByEdge {
+  cursor: String!
+  node: Person!
+}
+
+type Post implements Node {
+  id: ID!
+  body: String!
+  comments(after: String, before: String, first: Int, last: Int): PostCommentsConnection!
+  likedBy(after: String, before: String, first: Int, last: Int): PostLikedByConnection!
+}
+
+type PostConnection {
+  edges: [PostEdge!]!
+  pageInfo: PageInfo!
+}
+
+type PostEdge {
+  cursor: String!
+  node: Post!
+}"
+`;
+
+exports[`createComponents type definition and resolver generation 2`] = `
+Object {
+  "Comment": Object {
+    "body": [Function],
+    "id": [Function],
+  },
+  "Person": Object {
+    "fullName": [Function],
+    "id": [Function],
+    "posts": [Function],
+  },
+  "Post": Object {
+    "body": [Function],
+    "comments": [Function],
+    "id": [Function],
+    "likedBy": [Function],
+  },
+}
+`;
+
+exports[`createComponents type definition and resolver generation 3`] = `
+GraphQLSchema {
+  "__validationErrors": undefined,
+  "_directives": Array [
+    "@include",
+    "@skip",
+    "@deprecated",
+    "@specifiedBy",
+  ],
+  "_implementationsMap": Object {
+    "Node": Object {
+      "interfaces": Array [],
+      "objects": Array [
+        "Comment",
+        "Person",
+        "Post",
+      ],
+    },
+  },
+  "_mutationType": undefined,
+  "_queryType": undefined,
+  "_subTypeMap": Object {},
+  "_subscriptionType": undefined,
+  "_typeMap": Object {
+    "Boolean": "Boolean",
+    "Comment": "Comment",
+    "CommentConnection": "CommentConnection",
+    "CommentEdge": "CommentEdge",
+    "ID": "ID",
+    "Int": "Int",
+    "Node": "Node",
+    "PageInfo": "PageInfo",
+    "Person": "Person",
+    "PersonConnection": "PersonConnection",
+    "PersonEdge": "PersonEdge",
+    "PersonPostsConnection": "PersonPostsConnection",
+    "PersonPostsEdge": "PersonPostsEdge",
+    "Post": "Post",
+    "PostCommentsConnection": "PostCommentsConnection",
+    "PostCommentsEdge": "PostCommentsEdge",
+    "PostConnection": "PostConnection",
+    "PostEdge": "PostEdge",
+    "PostLikedByConnection": "PostLikedByConnection",
+    "PostLikedByEdge": "PostLikedByEdge",
+    "String": "String",
+    "__Directive": "__Directive",
+    "__DirectiveLocation": "__DirectiveLocation",
+    "__EnumValue": "__EnumValue",
+    "__Field": "__Field",
+    "__InputValue": "__InputValue",
+    "__Schema": "__Schema",
+    "__Type": "__Type",
+    "__TypeKind": "__TypeKind",
+  },
+  "astNode": undefined,
+  "description": undefined,
+  "extensionASTNodes": Array [],
+  "extensions": undefined,
+}
+`;

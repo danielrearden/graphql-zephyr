@@ -1,39 +1,74 @@
 import { buildSchema, GraphQLResolveInfo, GraphQLSchema } from "graphql";
 import {
+  parseResolveInfo,
+  ResolveTree,
+  simplifyParsedResolveInfoFragmentWithType,
+} from "graphql-parse-resolve-info";
+import {
   DatabasePoolType,
   sql,
   SqlTokenType,
   TaggedTemplateLiteralInvocationType,
 } from "slonik";
 import { raw } from "slonik-sql-tag-raw";
+import { assertValidConfig } from "../assertions";
 import {
+  AbstractModel,
   BuiltInDataType,
   ColumnType,
-  FieldInfo,
+  CreateSchemaComponentsConfig,
   Model,
+  ModelFieldConfig,
   OrderByDirection,
   QueryBuilder,
+  QueryBuilderAbstractModelInfo,
   QueryBuilderContext,
+  QueryBuilderModelInfo,
   QueryBuilderRelationshipMap,
-  RelationshipConfig,
   View,
 } from "../types";
 import {
   formatEnumName,
   fromCursor,
   getIdentifierMap,
-  parseResolveInfo,
   toCursor,
+  toGlobalId,
   upperFirst,
 } from "../utilities";
 
 // @todo make this configurable
 const DEFAULT_LIMIT = 500;
 
-const ORDER_BY_DIRECTION = {
-  ASC: sql`ASC`,
-  DESC: sql`DESC`,
-} as const;
+const getOrderByDirection = (
+  direction: "ASC" | "DESC",
+  isBackwardPagination: boolean
+): SqlTokenType => {
+  switch (direction) {
+    case "ASC":
+      return isBackwardPagination ? sql`DESC` : sql`ASC`;
+    case "DESC":
+      return isBackwardPagination ? sql`ASC` : sql`DESC`;
+  }
+};
+
+const getFieldType = (
+  fieldName: string,
+  field: ModelFieldConfig,
+  columnType: ColumnType,
+  customTypeMapper?: { [key in BuiltInDataType]?: string }
+): string => {
+  let type = field.type;
+
+  if (!field.isVirtual && !type) {
+    type = `${
+      fieldName === "id"
+        ? "ID"
+        : convertViewColumnTypeToGraphQLType(columnType, customTypeMapper)
+    }${field.nullable ? "" : "!"}`;
+  }
+
+  return type as string;
+};
 
 const convertViewColumnTypeToGraphQLType = (
   columnType: ColumnType,
@@ -71,44 +106,144 @@ const convertViewColumnTypeToGraphQLType = (
 };
 
 export const createSchemaComponents = <
-  TModels extends Record<string, Model<any>>
->({
-  models,
-  relationships,
-  customTypeMapper,
-}: {
-  models: TModels;
-  relationships: RelationshipConfig[];
-  customTypeMapper?: { [key in BuiltInDataType]?: string };
-}): {
+  TModels extends Record<string, Model<any, any, any> | AbstractModel<any, any>>
+>(
+  config: CreateSchemaComponentsConfig<TModels>
+): {
   createQueryBuilder: (pool: DatabasePoolType) => QueryBuilder<TModels>;
   resolvers: Record<string, any>;
   schema: GraphQLSchema;
   typeDefs: string;
 } => {
-  const modelInfo = new Map<
-    Model<any>,
-    {
-      name: string;
-      columnsByField: Record<string, string[]>;
-      relationshipMap: QueryBuilderRelationshipMap;
-    }
-  >();
+  assertValidConfig(config);
+
+  const { models, relationships, customTypeMapper } = config;
+  const modelInfoMap: Record<string, QueryBuilderModelInfo> = {};
+  const abstractModelInfoMap: Record<
+    string,
+    QueryBuilderAbstractModelInfo
+  > = {};
+  const interfacesByType: Record<string, string[]> = {};
   const resolvers: any = {};
   const typeDefinitions = [
     [
       "type PageInfo {",
-      "  endCursor: String!",
+      "  endCursor: String",
       "  hasNextPage: Boolean!",
       "  hasPreviousPage: Boolean!",
-      "  startCursor: String!",
+      "  startCursor: String",
       "}",
     ].join("\n"),
   ];
   const enumTypes = new Map<string, string>();
 
-  for (const modelName of Object.keys(models)) {
-    const model = models[modelName];
+  for (const model of Object.values(models).filter(
+    (model): model is AbstractModel<any, any> => "models" in model
+  )) {
+    // Get the columns for the underlying views
+    const columns: Record<string, ColumnType> = {};
+    for (const memberModel of model.models) {
+      for (const columnName of Object.keys(memberModel.view.columns)) {
+        const columnType = memberModel.view.columns[columnName];
+        columns[columnName] = columnType;
+      }
+    }
+
+    // Build a view using the views for each member type
+    const view = {
+      name: model.name,
+      columns: {
+        ...columns,
+        __typename: {
+          kind: "text" as const,
+        },
+      },
+      type: {},
+      query: model.models
+        .map((memberModel, index) => {
+          const identifier = `"t${index + 1}"`;
+          return `
+              SELECT
+                ${[
+                  `'${memberModel.name}' "__typename"`,
+                  ...Object.keys(columns).map((columnName) => {
+                    return `${
+                      memberModel.view.columns[columnName]
+                        ? `${identifier}."${columnName}"`
+                        : `null::${columns[columnName].kind}`
+                    } "${columnName}"`;
+                  }),
+                ].join(",\n")}
+              FROM (
+                ${memberModel.view.query}
+              ) ${identifier}
+            `;
+        })
+        .join("\nUNION\n"),
+    };
+
+    abstractModelInfoMap[model.name] = {
+      view,
+    };
+
+    const fieldDefinitions = [];
+
+    // Create interface field definitions for any common fields
+    if (model.commonFields.length) {
+      const fields = (model.models[0] as Model<any, any, any>).fields({
+        field: (options) => {
+          return "column" in options
+            ? {
+                ...options,
+                columns: [options.column] as string[],
+                isVirtual: false,
+              }
+            : {
+                ...options,
+                columns: options.columns as string[],
+                isVirtual: true,
+              };
+        },
+      });
+      for (const fieldName of Object.keys(fields).filter((fieldName) =>
+        model.commonFields.includes(fieldName)
+      )) {
+        const field = fields[fieldName];
+
+        fieldDefinitions.push(
+          `  ${fieldName}: ${getFieldType(
+            fieldName,
+            field,
+            model.models[0].view.columns[fieldName],
+            customTypeMapper
+          )}`
+        );
+      }
+    }
+
+    // If we have field definitions, this is an interface, otherwise it is a union
+    typeDefinitions.push(
+      fieldDefinitions.length
+        ? [`interface ${model.name} {`, ...fieldDefinitions, "}"].join("\n")
+        : `union ${model.name} = ${model.models
+            .map((model) => model.name)
+            .join(" | ")}`
+    );
+
+    // If this is an interface, add its member types to the interface map
+    if (fieldDefinitions) {
+      for (const memberModel of model.models) {
+        if (!interfacesByType[memberModel.name]) {
+          interfacesByType[memberModel.name] = [];
+        }
+        interfacesByType[memberModel.name].push(model.name);
+      }
+    }
+  }
+
+  for (const model of Object.values(models).filter(
+    (model): model is Model<any, any, any> => "fields" in model
+  )) {
     const view: View = model.view;
     const fieldDefinitions = [];
     const fields = model.fields({
@@ -130,28 +265,29 @@ export const createSchemaComponents = <
     const relationshipMap: QueryBuilderRelationshipMap = {};
 
     // Add the type to the resolver map
-    resolvers[modelName] = {};
+    resolvers[model.name] = {};
 
     // Add regular and virtual fields to the field definitions for the type
     for (const fieldName of Object.keys(fields)) {
       const field = fields[fieldName];
-      let type = field.type;
 
-      if (!field.isVirtual && !type) {
-        type = `${convertViewColumnTypeToGraphQLType(
+      fieldDefinitions.push(
+        `  ${fieldName}: ${getFieldType(
+          fieldName,
+          field,
           view.columns[fieldName],
           customTypeMapper
-        )}${field.nullable ? "" : "!"}`;
-      }
-
-      fieldDefinitions.push(`  ${fieldName}: ${type}`);
+        )}`
+      );
 
       // If a custom resolver was provided, add it to the resolver map
       if (field.resolve) {
-        resolvers[modelName][fieldName] = field.resolve;
+        resolvers[model.name][fieldName] = field.resolve;
       } else {
-        resolvers[modelName][fieldName] = (source: any) => {
-          return source[field.columns[0]];
+        resolvers[model.name][fieldName] = (source: any) => {
+          return fieldName === "id"
+            ? toGlobalId(model.name, source[field.columns[0]])
+            : source[field.columns[0]];
         };
       }
 
@@ -165,21 +301,18 @@ export const createSchemaComponents = <
     );
     for (const relationship of modelRelationships) {
       const relatedModel = relationship.models[1];
-      const relatedModelName = Object.keys(models).find(
-        (modelName) => models[modelName] === relatedModel
-      );
 
       // @todo support returning a plain list instead of always returning a Relay Connection
       if (relationship.type === "ONE_TO_ONE") {
         fieldDefinitions.push(
           `  ${relationship.name}${
             relationship.args ? `(${relationship.args})` : ""
-          }: ${relatedModelName}${Boolean(relationship.nullable) ? "" : "!"}`
+          }: ${relatedModel.name}${Boolean(relationship.nullable) ? "" : "!"}`
         );
       } else {
         const connectionTypePrefix =
           relationship.connectionTypePrefix ??
-          `${modelName}${upperFirst(relationship.name)}`;
+          `${model.name}${upperFirst(relationship.name)}`;
         const connectionTypeName = connectionTypePrefix + "Connection";
         const edgeTypeName = connectionTypePrefix + "Edge";
 
@@ -203,13 +336,13 @@ export const createSchemaComponents = <
           [
             `type ${edgeTypeName} {`,
             `  cursor: String!`,
-            `  node: ${relatedModelName}!`,
+            `  node: ${relatedModel.name}!`,
             "}",
           ].join("\n")
         );
 
         // Add resolver logic for the connection field
-        resolvers[modelName][relationship.name] = (
+        resolvers[model.name][relationship.name] = (
           source: any,
           args: any,
           _ctx: any,
@@ -227,6 +360,7 @@ export const createSchemaComponents = <
           const isBackwardPagination = last != null || before != null;
           const limit = (isBackwardPagination ? last : first) ?? DEFAULT_LIMIT;
           const hasMore = originalEdges.length > limit;
+
           const edges = originalEdges.slice(0, limit).map((edge) => {
             return {
               cursor: toCursor(edge.cursor),
@@ -262,23 +396,32 @@ export const createSchemaComponents = <
 
     // Add the type for the model to the type definitions
     // @todo allow additional properties to be exposed on each edge
+    const implementations = interfacesByType[model.name]
+      ? ` implements ${interfacesByType[model.name].join(" & ")} `
+      : " ";
     typeDefinitions.push(
-      [`type ${modelName} {`, ...fieldDefinitions, "}"].join("\n"),
+      [`type ${model.name}${implementations}{`, ...fieldDefinitions, "}"].join(
+        "\n"
+      ),
       [
-        `type ${modelName}Connection {`,
-        `  edges: [${modelName}Edge!]!`,
+        `type ${model.name}Connection {`,
+        `  edges: [${model.name}Edge!]!`,
         "  pageInfo: PageInfo!",
         "}",
       ].join("\n"),
       [
-        `type ${modelName}Edge {`,
+        `type ${model.name}Edge {`,
         `  cursor: String!`,
-        `  node: ${modelName}!`,
+        `  node: ${model.name}!`,
         "}",
       ].join("\n")
     );
 
-    modelInfo.set(model, { name: modelName, columnsByField, relationshipMap });
+    modelInfoMap[model.name] = {
+      columnsByField,
+      relationshipMap,
+      view: model.view,
+    };
 
     // Generate a GraphQL enum for any Postgres enum type used in the view
     for (let columnType of Object.values(view.columns)) {
@@ -300,22 +443,117 @@ export const createSchemaComponents = <
     }
   }
 
-  const buildNodeJsonObject = (
-    model: Model<View>,
+  const getConnectionComponents = (fieldsMap: {
+    [key: string]: ResolveTree;
+  }): { edges: boolean; aggregates: { count: boolean } } => {
+    const fields = Object.values(fieldsMap);
+
+    return {
+      edges: Boolean(
+        fields.find(
+          (field) => field.name === "edges" || field.name === "pageInfo"
+        )
+      ),
+      aggregates: {
+        count: Boolean(
+          fields.find(
+            (field) => field.name === "edges" || field.name === "pageInfo"
+          )
+        ),
+      },
+    };
+  };
+
+  const getNodeResolveTree = (fields: {
+    [key: string]: ResolveTree;
+  }): ResolveTree | undefined => {
+    if (fields.edges) {
+      const edgesFields = simplifyParsedResolveInfoFragmentWithType(
+        fields.edges,
+        schema.getType(Object.keys(fields.edges.fieldsByTypeName)[0])!
+      ).fields as any;
+
+      return edgesFields.node;
+    }
+
+    return undefined;
+  };
+
+  const buildConcreteOrAbstractNodeJsonValue = (
+    model: Model<any, any, any> | AbstractModel<any, any>,
     tableAlias: string,
-    fieldInfo: FieldInfo | undefined,
+    resolveTree: ResolveTree | undefined,
     context: QueryBuilderContext
   ): SqlTokenType => {
-    if (!fieldInfo) {
+    if ("models" in model) {
+      return buildAbstractNodeJsonValue(
+        model,
+        tableAlias,
+        resolveTree,
+        context
+      );
+    } else {
+      return buildConcreteNodeJsonValue(
+        model,
+        tableAlias,
+        resolveTree
+          ? simplifyParsedResolveInfoFragmentWithType(
+              resolveTree,
+              schema.getType(model.name)!
+            ).fields
+          : undefined,
+        context
+      );
+    }
+  };
+
+  const buildAbstractNodeJsonValue = (
+    model: AbstractModel<any, any>,
+    tableAlias: string,
+    resolveTree: ResolveTree | undefined,
+    context: QueryBuilderContext
+  ): SqlTokenType => {
+    return sql`
+      CASE ${sql.identifier([tableAlias, "__typename"])}
+      ${sql.join(
+        model.models.map((model) => {
+          return sql`WHEN '${raw(
+            model.name
+          )}' THEN ${buildConcreteNodeJsonValue(
+            model,
+            tableAlias,
+            resolveTree?.fieldsByTypeName[model.name],
+            context
+          )}`;
+        }),
+        sql`\n`
+      )}
+      END
+    `;
+  };
+
+  const buildConcreteNodeJsonValue = (
+    model: Model<any, any, any>,
+    tableAlias: string,
+    fields:
+      | {
+          [str: string]: ResolveTree;
+        }
+      | undefined,
+    context: QueryBuilderContext
+  ): SqlTokenType => {
+    if (!fields) {
       return sql`json_build_object()`;
     }
 
     const { getIdentifier } = context;
-    const { columnsByField, relationshipMap } = modelInfo.get(model)!;
-
-    const jsonBuildObjectArgs = [];
+    const { columnsByField, relationshipMap, view } = modelInfoMap[model.name];
+    const jsonBuildObjectArgs: SqlTokenType[] = [
+      raw("'__typename'"),
+      raw(`'${model.name}'`),
+    ];
     const selectedColumns = new Map<string, string>();
-    for (const selectedField of Object.values(fieldInfo.fields)) {
+    for (const selectedField of Object.values(fields)) {
       if (columnsByField[selectedField.name]) {
         columnsByField[selectedField.name].forEach((column) => {
           selectedColumns.set(column, column);
@@ -326,7 +564,7 @@ export const createSchemaComponents = <
 
         if (relationship.type === "ONE_TO_ONE") {
           const where = relationship.join(
-            getIdentifierMap(tableAlias, model.view.columns),
+            getIdentifierMap(tableAlias, view.columns),
             getIdentifierMap(otherTableAlias, relationship.model.view.columns),
             selectedField.args
           );
@@ -342,7 +580,7 @@ export const createSchemaComponents = <
           );
         } else if (relationship.type === "ONE_TO_MANY") {
           const where = relationship.join(
-            getIdentifierMap(tableAlias, model.view.columns),
+            getIdentifierMap(tableAlias, view.columns),
             getIdentifierMap(otherTableAlias, relationship.model.view.columns),
             selectedField.args
           );
@@ -365,7 +603,7 @@ export const createSchemaComponents = <
         } else if (relationship.type === "MANY_TO_MANY") {
           const junctionAlias = getIdentifier(relationship.junctionView.name);
           const where = relationship.join(
-            getIdentifierMap(tableAlias, model.view.columns),
+            getIdentifierMap(tableAlias, view.columns),
             getIdentifierMap(junctionAlias, relationship.junctionView.columns),
             getIdentifierMap(otherTableAlias, relationship.model.view.columns),
             selectedField.args
@@ -402,22 +640,26 @@ export const createSchemaComponents = <
   };
 
   const buildNodeQuery = (
-    model: Model<View>,
+    model: Model<any, any, any> | AbstractModel<any, any>,
     tableAlias: string,
-    fieldInfo: FieldInfo,
+    resolveTree: ResolveTree,
     where: SqlTokenType,
     context: QueryBuilderContext
   ): TaggedTemplateLiteralInvocationType<any> => {
-    // Add the view to all views used by the query
-    const { views } = context;
-    if (!views.has(model.view.name)) {
-      views.set(model.view.name, model.view);
-    }
+    const view =
+      "models" in model
+        ? abstractModelInfoMap[model.name].view
+        : modelInfoMap[model.name].view;
 
     return sql`
       SELECT
-        ${buildNodeJsonObject(model, tableAlias, fieldInfo, context)}
-      FROM ${sql.identifier([model.view.name])} ${sql.identifier([tableAlias])}
+        ${buildConcreteOrAbstractNodeJsonValue(
+          model,
+          tableAlias,
+          resolveTree,
+          context
+        )}
+      FROM (${raw(view.query)}) ${sql.identifier([tableAlias])}
       WHERE
         ${where}
       LIMIT 1
@@ -425,34 +667,38 @@ export const createSchemaComponents = <
   };
 
   const buildRelayConnectionQuery = (
-    model: Model<View>,
+    model: Model<any, any, any> | AbstractModel<any, any>,
     tableAlias: string,
-    fieldInfo: FieldInfo,
+    resolveTree: ResolveTree,
     where: SqlTokenType,
     orderBy: [SqlTokenType, OrderByDirection][],
     context: QueryBuilderContext
   ): TaggedTemplateLiteralInvocationType<any> => {
-    // Add the view to all views used by the query
-    const { views } = context;
-    if (!views.has(model.view.name)) {
-      views.set(model.view.name, model.view);
-    }
-
-    const shouldFetchAggregates = Boolean(fieldInfo.fields["count"]);
-    const shouldFetchEdges = Boolean(
-      fieldInfo.fields["edges"] || fieldInfo.fields["pageInfo"]
+    const view =
+      "models" in model
+        ? abstractModelInfoMap[model.name].view
+        : modelInfoMap[model.name].view;
+    const { fields } = simplifyParsedResolveInfoFragmentWithType(
+      resolveTree,
+      schema.getType(Object.keys(resolveTree.fieldsByTypeName)[0])!
     );
+    const connectionComponents = getConnectionComponents(fields);
+    const { after, before, first, last } = resolveTree.args;
+    const isBackwardPagination = last != null || before != null;
+    const limit =
+      (isBackwardPagination ? (last as number) : (first as number)) ??
+      DEFAULT_LIMIT;
+    const cursor = (before || after) as string | null | undefined;
     const orderByExpression = sql.join(
       orderBy.map(
         ([expression, direction]) =>
-          sql`${expression} ${ORDER_BY_DIRECTION[direction]}`
+          sql`${expression} ${getOrderByDirection(
+            direction,
+            isBackwardPagination
+          )}`
       ),
       sql`, `
     );
-    const { after, before, first, last } = fieldInfo.args;
-    const isBackwardPagination = last != null || before != null;
-    const limit = (isBackwardPagination ? last : first) ?? DEFAULT_LIMIT;
-    const cursor = before || after;
 
     let cursorConditions: SqlTokenType = sql`true`;
     if (cursor) {
@@ -481,7 +727,7 @@ export const createSchemaComponents = <
       );
     }
 
-    const edges = shouldFetchEdges
+    const edges = connectionComponents.edges
       ? sql`
         'edges', (
           SELECT
@@ -491,37 +737,33 @@ export const createSchemaComponents = <
                   orderBy.map(([expression]) => expression),
                   sql`, `
                 )}),
-                'node', ${buildNodeJsonObject(
+                'node', ${buildConcreteOrAbstractNodeJsonValue(
                   model,
                   tableAlias,
-                  fieldInfo.fields["edges"]?.fields["node"],
+                  getNodeResolveTree(fields),
                   context
                 )}
               )
               ORDER BY ${orderByExpression}
             ), '[]'::json)
-          FROM ${sql.identifier([model.view.name])} ${sql.identifier([
-          tableAlias,
-        ])}
+          FROM (${raw(view.query)}) ${sql.identifier([tableAlias])}
           WHERE
             (${where}) AND (${cursorConditions})
           LIMIT ${limit + 1}
         )
       `
       : null;
-    const aggregates = shouldFetchAggregates
+    const aggregates = connectionComponents.aggregates
       ? sql`
         'aggregates', (
           SELECT
             json_build_object(
               'count', count(*)
             )
-          FROM ${sql.identifier([model.view.name])} ${sql.identifier([
-          tableAlias,
-        ])}
+          FROM (${raw(view.query)}) ${sql.identifier([tableAlias])}
           WHERE
             ${where}
-        ),
+        )
       `
       : null;
 
@@ -534,39 +776,41 @@ export const createSchemaComponents = <
   };
 
   const buildJunctionRelayConnectionQuery = (
-    model: Model<View>,
+    model: Model<any, any, any> | AbstractModel<any, any>,
     tableAlias: string,
     junctionView: View,
     junctionTableAlias: string,
-    fieldInfo: FieldInfo,
+    resolveTree: ResolveTree,
     where: [SqlTokenType, SqlTokenType],
     orderBy: [SqlTokenType, OrderByDirection][],
     context: QueryBuilderContext
   ): TaggedTemplateLiteralInvocationType<any> => {
-    // Add the views to all views used by the query
-    const { views } = context;
-    if (!views.has(model.view.name)) {
-      views.set(model.view.name, model.view);
-    }
-    if (!views.has(junctionView.name)) {
-      views.set(junctionView.name, junctionView);
-    }
+    const view =
+      "models" in model
+        ? abstractModelInfoMap[model.name].view
+        : modelInfoMap[model.name].view;
 
-    const shouldFetchAggregates = Boolean(fieldInfo.fields["count"]);
-    const shouldFetchEdges = Boolean(
-      fieldInfo.fields["edges"] || fieldInfo.fields["pageInfo"]
+    const { fields } = simplifyParsedResolveInfoFragmentWithType(
+      resolveTree,
+      schema.getType(Object.keys(resolveTree.fieldsByTypeName)[0])!
     );
+    const connectionComponents = getConnectionComponents(fields);
+    const { after, before, first, last } = resolveTree.args;
+    const isBackwardPagination = last != null || before != null;
+    const limit =
+      (isBackwardPagination ? (last as number) : (first as number)) ??
+      DEFAULT_LIMIT;
+    const cursor = (before || after) as string | null | undefined;
     const orderByExpression = sql.join(
       orderBy.map(
         ([expression, direction]) =>
-          sql`${expression} ${ORDER_BY_DIRECTION[direction]}`
+          sql`${expression} ${getOrderByDirection(
+            direction,
+            isBackwardPagination
+          )}`
       ),
       sql`, `
     );
-    const { after, before, first, last } = fieldInfo.args;
-    const isBackwardPagination = last != null || before != null;
-    const limit = (isBackwardPagination ? last : first) ?? DEFAULT_LIMIT;
-    const cursor = before || after;
 
     let cursorConditions: SqlTokenType = sql`true`;
     if (cursor) {
@@ -595,7 +839,7 @@ export const createSchemaComponents = <
       );
     }
 
-    const edges = shouldFetchEdges
+    const edges = connectionComponents.edges
       ? sql`
         'edges', (
           SELECT
@@ -605,19 +849,17 @@ export const createSchemaComponents = <
                   orderBy.map(([expression]) => expression),
                   sql`, `
                 )}),
-                'node', ${buildNodeJsonObject(
+                'node', ${buildConcreteOrAbstractNodeJsonValue(
                   model,
                   tableAlias,
-                  fieldInfo.fields["edges"]?.fields["node"],
+                  getNodeResolveTree(fields),
                   context
                 )}
               )
               ORDER BY ${orderByExpression}
             ), '[]'::json)
-          FROM ${sql.identifier([model.view.name])} ${sql.identifier([
-          tableAlias,
-        ])}
-          INNER JOIN ${sql.identifier([junctionView.name])} ${sql.identifier([
+          FROM (${raw(view.query)}) ${sql.identifier([tableAlias])}
+          INNER JOIN (${raw(junctionView.query)}) ${sql.identifier([
           junctionTableAlias,
         ])} ON
             ${where[0]} 
@@ -627,23 +869,21 @@ export const createSchemaComponents = <
         )
       `
       : null;
-    const aggregates = shouldFetchAggregates
+    const aggregates = connectionComponents.aggregates
       ? sql`
         'aggregates', (
           SELECT
             json_build_object(
               'count', count(*)
             )
-          FROM FROM ${sql.identifier([model.view.name])} ${sql.identifier([
-          tableAlias,
-        ])}
-          INNER JOIN ${sql.identifier([junctionView.name])} ${sql.identifier([
+          FROM (${raw(view.query)}) ${sql.identifier([tableAlias])}
+          INNER JOIN ((${raw(junctionView.query)})) ${sql.identifier([
           junctionTableAlias,
         ])} ON
             ${where[0]} 
           WHERE
             ${where[1]}
-        ),
+        )
       `
       : null;
 
@@ -669,70 +909,90 @@ export const createSchemaComponents = <
 
         return `${key}${keyCounts[key]}`;
       },
-      views: new Map(),
     };
   };
 
   const createQueryBuilder = (pool: DatabasePoolType) => {
     return {
-      models: Object.keys(models).reduce((acc, modelName) => {
-        acc[modelName as keyof TModels] = {
+      models: Object.keys(models).reduce((acc, mappedModelName) => {
+        const model = models[mappedModelName];
+        acc[mappedModelName as keyof TModels] = {
           findOne: async ({ info, where }) => {
-            const model = models[modelName];
+            const view =
+              "models" in model
+                ? abstractModelInfoMap[model.name].view
+                : modelInfoMap[model.name].view;
             const context = createContext();
-            const tableAlias = context.getIdentifier(model.view.name);
-            const fieldInfo = parseResolveInfo(info)!;
+            const tableAlias = context.getIdentifier(view.name);
+            const fieldInfo = parseResolveInfo(info) as ResolveTree;
 
             const query = buildNodeQuery(
               model,
               tableAlias,
               fieldInfo,
-              where(getIdentifierMap(tableAlias, model.view.columns) as any),
+              where(getIdentifierMap(tableAlias, view.columns) as any),
               context
             );
 
-            return pool.maybeOneFirst(sql`
-              WITH
-                ${sql.join(
-                  Array.from(context.views.values()).map((view) => {
-                    return sql`${sql.identifier([view.name])} AS (${raw(
-                      view.query
-                    )})`;
-                  }),
-                  sql`,\n`
-                )}
-              ${query}
-            `);
+            return pool.maybeOneFirst(query);
           },
           getRelayConnection: async ({ info, orderBy, where }) => {
-            const model = models[modelName];
+            const view =
+              "models" in model
+                ? abstractModelInfoMap[model.name].view
+                : modelInfoMap[model.name].view;
             const context = createContext();
-            const tableAlias = context.getIdentifier(model.view.name);
-            const fieldInfo = parseResolveInfo(info)!;
+            const tableAlias = context.getIdentifier(view.name);
+            const fieldInfo = parseResolveInfo(info) as ResolveTree;
 
             const query = buildRelayConnectionQuery(
               model,
               tableAlias,
               fieldInfo,
               where
-                ? where(getIdentifierMap(tableAlias, model.view.columns) as any)
+                ? where(getIdentifierMap(tableAlias, view.columns) as any)
                 : sql`true`,
-              orderBy(getIdentifierMap(tableAlias, model.view.columns) as any),
+              orderBy(getIdentifierMap(tableAlias, view.columns) as any),
               context
             );
 
-            return pool.oneFirst(sql`
-              WITH
-                ${sql.join(
-                  Array.from(context.views.values()).map((view) => {
-                    return sql`${sql.identifier([view.name])} AS (${raw(
-                      view.query
-                    )})`;
-                  }),
-                  sql`,\n`
-                )}
-              ${query}
-            `);
+            const {
+              aggregates,
+              edges: originalEdges = [],
+            } = await pool.oneFirst(query);
+            const { after, before, first, last } = fieldInfo.args;
+
+            // If last or before are not present, we assume forward pagination
+            const isBackwardPagination = last != null || before != null;
+            const limit =
+              (isBackwardPagination ? last : first) ?? DEFAULT_LIMIT;
+            const hasMore = originalEdges.length > limit;
+
+            const edges = originalEdges
+              .slice(0, limit)
+              .map((edge: { cursor: any[]; node: any }) => {
+                return {
+                  cursor: toCursor(edge.cursor),
+                  node: edge.node,
+                };
+              });
+
+            if (isBackwardPagination) {
+              edges.reverse();
+            }
+
+            const pageInfo = {
+              endCursor: edges[edges.length - 1]?.cursor ?? null,
+              hasNextPage: isBackwardPagination ? before != null : hasMore,
+              hasPreviousPage: isBackwardPagination ? hasMore : after != null,
+              startCursor: edges[0]?.cursor ?? null,
+            };
+
+            return {
+              ...aggregates,
+              edges,
+              pageInfo,
+            };
           },
         };
 

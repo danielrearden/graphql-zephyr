@@ -1,9 +1,13 @@
 import { Model, View } from "../types";
 
-export const createModel = <TView extends View>({
-  fields,
+export const createModel = <
+  TName extends string,
+  TView extends View,
+  TFields extends string
+>({
   name,
+  fields,
   view,
-}: Model<TView>): Model<TView> => {
-  return { fields, name, view };
+}: Model<TName, TView, TFields>): Model<TName, TView, TFields> => {
+  return { name, fields, view };
 };

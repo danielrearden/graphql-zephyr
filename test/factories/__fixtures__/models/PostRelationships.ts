@@ -18,7 +18,7 @@ export const PostRelationships = createRelationships(
       models: [Post, Person],
       junctionView: views.PostLike,
       join: (post, postLike, person) => [
-        sql`${post.id} = $${postLike.post_id}`,
+        sql`${post.id} = ${postLike.post_id}`,
         sql`${postLike.person_id} = ${person.id}`,
       ],
       orderBy: (person) => [[person.id, "ASC"]],

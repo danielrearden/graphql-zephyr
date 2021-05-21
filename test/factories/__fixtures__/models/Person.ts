@@ -2,6 +2,7 @@ import { createModel } from "../../../../lib/factories";
 import { views } from "../views";
 
 export const Person = createModel({
+  name: "Person",
   view: views.Person,
   fields: ({ field }) => {
     return {

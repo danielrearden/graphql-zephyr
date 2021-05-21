@@ -1,4 +1,5 @@
 import {
+  AbstractModel,
   ManyToManyRelationship,
   Model,
   OneToManyRelationship,
@@ -10,38 +11,34 @@ import {
 export const createRelationships = (
   factory: (utilities: {
     manyToMany: <
-      TModelA extends Model<any>,
-      TModelB extends Model<any>,
+      TModelA extends Model<any, any, any>,
+      TModelB extends Model<any, any, any> | AbstractModel<any, any>,
       TView extends View
     >(
       relationship: ManyToManyRelationship<TModelA, TModelB, TView>
     ) => RelationshipConfig;
-    oneToMany: <TModelA extends Model<any>, TModelB extends Model<any>>(
+    oneToMany: <
+      TModelA extends Model<any, any, any>,
+      TModelB extends Model<any, any, any> | AbstractModel<any, any>
+    >(
       relationship: OneToManyRelationship<TModelA, TModelB>
     ) => RelationshipConfig;
-    oneToOne: <TModelA extends Model<any>, TModelB extends Model<any>>(
+    oneToOne: <
+      TModelA extends Model<any, any, any>,
+      TModelB extends Model<any, any, any> | AbstractModel<any, any>
+    >(
       relationship: OneToOneRelationship<TModelA, TModelB>
     ) => RelationshipConfig;
   }) => RelationshipConfig[]
 ): RelationshipConfig[] => {
   return factory({
-    manyToMany: <
-      TModelA extends Model<any>,
-      TModelB extends Model<any>,
-      TView extends View
-    >(
-      relationship: ManyToManyRelationship<TModelA, TModelB, TView>
-    ) => {
+    manyToMany: (relationship: ManyToManyRelationship<any, any, any>) => {
       return { ...relationship, type: "MANY_TO_MANY" };
     },
-    oneToMany: <TModelA extends Model<any>, TModelB extends Model<any>>(
-      relationship: OneToManyRelationship<TModelA, TModelB>
-    ) => {
+    oneToMany: (relationship: OneToManyRelationship<any, any>) => {
       return { ...relationship, type: "ONE_TO_MANY" };
     },
-    oneToOne: <TModelA extends Model<any>, TModelB extends Model<any>>(
-      relationship: OneToOneRelationship<TModelA, TModelB>
-    ) => {
+    oneToOne: (relationship: OneToOneRelationship<any, any>) => {
       return { ...relationship, type: "ONE_TO_ONE" };
     },
   });

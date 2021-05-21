@@ -53,13 +53,6 @@ export type ColumnType =
   | { kind: "array"; of: ColumnType }
   | { kind: "enum"; name: string; values: string[] };
 
-export interface FieldInfo {
-  name: string;
-  alias: string;
-  args: Record<string, any>;
-  fields: Record<string, FieldInfo>;
-}
-
 export type IdentifiersFrom<T> = {
   [Property in keyof T]: IdentifierSqlTokenType;
 };
@@ -71,12 +64,25 @@ export interface View {
   type: Record<string, any>;
 }
 
-export interface Model<TView extends View> {
-  fields: ModelFields<TView>;
+export interface Model<TName, TView extends View, TFields extends string> {
+  name: TName;
+  fields: ModelFields<TView, TFields>;
   view: TView;
 }
 
-export type ModelFields<TView extends View> = (utilities: {
+export interface AbstractModel<
+  TFields extends string,
+  TModel extends Model<any, any, TFields>
+> {
+  name: string;
+  models: TModel[];
+  commonFields: TFields[];
+}
+
+export type ModelFields<
+  TView extends View,
+  TFields extends string
+> = (utilities: {
   field: <TColumns extends keyof TView["type"]>(
     options:
       | {
@@ -101,7 +107,7 @@ export type ModelFields<TView extends View> = (utilities: {
           ) => any;
         }
   ) => ModelFieldConfig;
-}) => Record<string, ModelFieldConfig>;
+}) => Record<TFields, ModelFieldConfig>;
 
 export type ModelFieldConfig =
   | {
@@ -131,8 +137,8 @@ export type ModelFieldConfig =
 export type OrderByDirection = "ASC" | "DESC";
 
 export type OneToOneRelationship<
-  TModelA extends Model<any>,
-  TModelB extends Model<any>
+  TModelA extends Model<any, any, any>,
+  TModelB extends Model<any, any, any> | AbstractModel<any, any>
 > = {
   name: string;
   models: [TModelA, TModelB];
@@ -140,14 +146,22 @@ export type OneToOneRelationship<
   args?: string;
   join: (
     modelA: IdentifiersFrom<TModelA["view"]["columns"]>,
-    modelB: IdentifiersFrom<TModelB["view"]["columns"]>,
+    modelB: UnionToIntersection<
+      IdentifiersFrom<
+        TModelB extends Model<any, any, any>
+          ? TModelB["view"]["columns"]
+          : TModelB extends AbstractModel<any, any>
+          ? AbstractModelViewColumns<TModelB["models"]>
+          : never
+      >
+    >,
     args: any
   ) => SqlTokenType;
 };
 
 export type OneToManyRelationship<
-  TModelA extends Model<any>,
-  TModelB extends Model<any>
+  TModelA extends Model<any, any, any>,
+  TModelB extends Model<any, any, any> | AbstractModel<any, any>
 > = {
   name: string;
   models: [TModelA, TModelB];
@@ -155,18 +169,34 @@ export type OneToManyRelationship<
   args?: string;
   join: (
     modelA: IdentifiersFrom<TModelA["view"]["columns"]>,
-    modelB: IdentifiersFrom<TModelB["view"]["columns"]>,
+    modelB: UnionToIntersection<
+      IdentifiersFrom<
+        TModelB extends Model<any, any, any>
+          ? TModelB["view"]["columns"]
+          : TModelB extends AbstractModel<any, any>
+          ? AbstractModelViewColumns<TModelB["models"]>
+          : never
+      >
+    >,
     args: any
   ) => SqlTokenType;
   orderBy: (
-    modelB: IdentifiersFrom<TModelB["view"]["columns"]>,
+    modelB: UnionToIntersection<
+      IdentifiersFrom<
+        TModelB extends Model<any, any, any>
+          ? TModelB["view"]["columns"]
+          : TModelB extends AbstractModel<any, any>
+          ? AbstractModelViewColumns<TModelB["models"]>
+          : never
+      >
+    >,
     args: any
   ) => [SqlTokenType, OrderByDirection][];
 };
 
 export type ManyToManyRelationship<
-  TModelA extends Model<any>,
-  TModelB extends Model<any>,
+  TModelA extends Model<any, any, any>,
+  TModelB extends Model<any, any, any> | AbstractModel<any, any>,
   TJunctionView extends View
 > = {
   name: string;
@@ -177,11 +207,27 @@ export type ManyToManyRelationship<
   join: (
     modelA: IdentifiersFrom<TModelA["view"]["columns"]>,
     junction: IdentifiersFrom<TJunctionView["columns"]>,
-    modelB: IdentifiersFrom<TModelB["view"]["columns"]>,
+    modelB: UnionToIntersection<
+      IdentifiersFrom<
+        TModelB extends Model<any, any, any>
+          ? TModelB["view"]["columns"]
+          : TModelB extends AbstractModel<any, any>
+          ? AbstractModelViewColumns<TModelB["models"]>
+          : never
+      >
+    >,
     args: any
   ) => [SqlTokenType, SqlTokenType];
   orderBy: (
-    modelB: IdentifiersFrom<TModelB["view"]["columns"]>,
+    modelB: UnionToIntersection<
+      IdentifiersFrom<
+        TModelB extends Model<any, any, any>
+          ? TModelB["view"]["columns"]
+          : TModelB extends AbstractModel<any, any>
+          ? AbstractModelViewColumns<TModelB["models"]>
+          : never
+      >
+    >,
     junction: IdentifiersFrom<TJunctionView["columns"]>,
     args: any
   ) => [SqlTokenType, OrderByDirection][];
@@ -196,7 +242,7 @@ export type QueryBuilderRelationshipMap = Record<
   string,
   | {
       type: "ONE_TO_ONE";
-      model: Model<View>;
+      model: Model<string, View, string>;
       join: (
         modelA: IdentifiersFrom<any>,
         modelB: IdentifiersFrom<any>,
@@ -205,7 +251,7 @@ export type QueryBuilderRelationshipMap = Record<
     }
   | {
       type: "ONE_TO_MANY";
-      model: Model<View>;
+      model: Model<string, View, string>;
       join: (
         modelA: IdentifiersFrom<any>,
         modelB: IdentifiersFrom<any>,
@@ -218,7 +264,7 @@ export type QueryBuilderRelationshipMap = Record<
     }
   | {
       type: "MANY_TO_MANY";
-      model: Model<View>;
+      model: Model<string, View, string>;
       junctionView: View;
       join: (
         modelA: IdentifiersFrom<any>,
@@ -234,29 +280,84 @@ export type QueryBuilderRelationshipMap = Record<
     }
 >;
 
-export type QueryBuilderContext = {
-  getIdentifier: (name: string) => string;
-  views: Map<string, View>;
+export type QueryBuilderModelInfo = {
+  view: View;
+  columnsByField: Record<string, string[]>;
+  relationshipMap: QueryBuilderRelationshipMap;
 };
 
-export type QueryBuilder<TModels extends Record<string, Model<any>>> = {
+export type QueryBuilderAbstractModelInfo = {
+  view: View;
+};
+
+export type QueryBuilderContext = {
+  getIdentifier: (name: string) => string;
+};
+
+export type QueryBuilder<
+  TModels extends Record<string, Model<any, any, any> | AbstractModel<any, any>>
+> = {
   models: {
     [ModelName in keyof TModels]: {
       findOne: (options: {
         info: GraphQLResolveInfo;
         where: (
-          view: IdentifiersFrom<TModels[ModelName]["view"]["columns"]>
+          view: UnionToIntersection<
+            IdentifiersFrom<
+              TModels[ModelName] extends Model<any, any, any>
+                ? TModels[ModelName]["view"]["columns"]
+                : TModels[ModelName] extends AbstractModel<any, any>
+                ? AbstractModelViewColumns<TModels[ModelName]["models"]>
+                : never
+            >
+          >
         ) => SqlTokenType;
       }) => Promise<unknown>;
       getRelayConnection: (options: {
         info: GraphQLResolveInfo;
         where?: (
-          view: IdentifiersFrom<TModels[ModelName]["view"]["columns"]>
+          view: UnionToIntersection<
+            IdentifiersFrom<
+              TModels[ModelName] extends Model<any, any, any>
+                ? TModels[ModelName]["view"]["columns"]
+                : TModels[ModelName] extends AbstractModel<any, any>
+                ? AbstractModelViewColumns<TModels[ModelName]["models"]>
+                : never
+            >
+          >
         ) => SqlTokenType;
         orderBy: (
-          view: IdentifiersFrom<TModels[ModelName]["view"]["columns"]>
+          view: UnionToIntersection<
+            IdentifiersFrom<
+              TModels[ModelName] extends Model<any, any, any>
+                ? TModels[ModelName]["view"]["columns"]
+                : TModels[ModelName] extends AbstractModel<any, any>
+                ? AbstractModelViewColumns<TModels[ModelName]["models"]>
+                : never
+            >
+          >
         ) => [SqlTokenType, OrderByDirection][];
       }) => Promise<unknown>;
     };
   };
+};
+
+export type AbstractModelViewColumns<T> = T extends readonly (infer TModel)[]
+  ? TModel extends Model<infer TName, infer TView, any>
+    ? TView["columns"] & { __typename: TName }
+    : never
+  : never;
+
+export type UnionToIntersection<U> = (
+  U extends any ? (k: U) => void : never
+) extends (k: infer I) => void
+  ? I
+  : never;
+
+export type CreateSchemaComponentsConfig<
+  TModels extends Record<string, Model<any, any, any> | AbstractModel<any, any>>
+> = {
+  models: TModels;
+  relationships: RelationshipConfig[];
+  customTypeMapper?: { [key in BuiltInDataType]?: string };
 };
