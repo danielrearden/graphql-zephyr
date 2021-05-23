@@ -197,7 +197,8 @@ export type OneToManyRelationship<
 export type ManyToManyRelationship<
   TModelA extends Model<any, any, any>,
   TModelB extends Model<any, any, any> | AbstractModel<any, any>,
-  TJunctionView extends View
+  TJunctionView extends View,
+  TFields extends string
 > = {
   name: string;
   models: [TModelA, TModelB];
@@ -231,12 +232,13 @@ export type ManyToManyRelationship<
     junction: IdentifiersFrom<TJunctionView["columns"]>,
     args: any
   ) => [SqlTokenType, OrderByDirection][];
+  fields?: ModelFields<TJunctionView, TFields>;
 };
 
 export type RelationshipConfig =
   | (OneToOneRelationship<any, any> & { type: "ONE_TO_ONE" })
   | (OneToManyRelationship<any, any> & { type: "ONE_TO_MANY" })
-  | (ManyToManyRelationship<any, any, any> & { type: "MANY_TO_MANY" });
+  | (ManyToManyRelationship<any, any, any, any> & { type: "MANY_TO_MANY" });
 
 export type QueryBuilderRelationshipMap = Record<
   string,
@@ -248,6 +250,7 @@ export type QueryBuilderRelationshipMap = Record<
         modelB: IdentifiersFrom<any>,
         args: any
       ) => SqlTokenType;
+      columnsByField: Record<string, string[]>;
     }
   | {
       type: "ONE_TO_MANY";
@@ -261,6 +264,7 @@ export type QueryBuilderRelationshipMap = Record<
         modelB: IdentifiersFrom<any>,
         args: any
       ) => [SqlTokenType, OrderByDirection][];
+      columnsByField: Record<string, string[]>;
     }
   | {
       type: "MANY_TO_MANY";
@@ -277,6 +281,7 @@ export type QueryBuilderRelationshipMap = Record<
         junction: IdentifiersFrom<any>,
         args: any
       ) => [SqlTokenType, OrderByDirection][];
+      columnsByField: Record<string, string[]>;
     }
 >;
 

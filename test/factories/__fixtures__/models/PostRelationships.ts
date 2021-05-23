@@ -22,6 +22,9 @@ export const PostRelationships = createRelationships(
         sql`${postLike.person_id} = ${person.id}`,
       ],
       orderBy: (person) => [[person.id, "ASC"]],
+      fields: ({ field }) => ({
+        likedAt: field({ column: "liked_at" }),
+      }),
     }),
   ]
 );

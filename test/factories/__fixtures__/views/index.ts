@@ -75,6 +75,7 @@ export const views = {
     query: `
       SELECT
         id,
+        liked_at,
         post_id,
         person_id
       FROM post_like
@@ -83,6 +84,9 @@ export const views = {
       id: {
         kind: "integer",
       } as const,
+      liked_at: {
+        kind: "timestamp with time zone",
+      } as const,
       post_id: {
         kind: "integer",
       } as const,
@@ -90,6 +94,11 @@ export const views = {
         kind: "integer",
       } as const,
     },
-    type: {} as { id: number; post_id: number; person_id: number },
+    type: {} as {
+      id: number;
+      liked_at: string;
+      post_id: number;
+      person_id: number;
+    },
   },
 };

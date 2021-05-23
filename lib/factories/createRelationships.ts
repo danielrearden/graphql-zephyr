@@ -13,9 +13,10 @@ export const createRelationships = (
     manyToMany: <
       TModelA extends Model<any, any, any>,
       TModelB extends Model<any, any, any> | AbstractModel<any, any>,
-      TView extends View
+      TView extends View,
+      TFields extends string
     >(
-      relationship: ManyToManyRelationship<TModelA, TModelB, TView>
+      relationship: ManyToManyRelationship<TModelA, TModelB, TView, TFields>
     ) => RelationshipConfig;
     oneToMany: <
       TModelA extends Model<any, any, any>,
@@ -32,7 +33,7 @@ export const createRelationships = (
   }) => RelationshipConfig[]
 ): RelationshipConfig[] => {
   return factory({
-    manyToMany: (relationship: ManyToManyRelationship<any, any, any>) => {
+    manyToMany: (relationship: ManyToManyRelationship<any, any, any, any>) => {
       return { ...relationship, type: "MANY_TO_MANY" };
     },
     oneToMany: (relationship: OneToManyRelationship<any, any>) => {

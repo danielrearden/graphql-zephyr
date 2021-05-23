@@ -35,6 +35,7 @@ describe("createComponents", () => {
       );
       CREATE TABLE post_like (
         id serial PRIMARY KEY,
+        liked_at timestamptz DEFAULT now(),
         person_id integer NOT NULL REFERENCES person (id),
         post_id integer NOT NULL REFERENCES post (id)
       );
@@ -145,6 +146,7 @@ describe("createComponents", () => {
                       ...PageInfoFragment
                     }
                     edges {
+                      likedAt
                       cursor
                       node {
                         id

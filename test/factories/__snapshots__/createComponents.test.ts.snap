@@ -119,6 +119,7 @@ Object {
               "edges": Array [
                 Object {
                   "cursor": "WzZd",
+                  "likedAt": "2021-05-23T19:02:30.578922+00:00",
                   "node": Object {
                     "fullName": "Estel McLaggan",
                     "id": "WyJQZXJzb24iLDZd",
@@ -126,6 +127,7 @@ Object {
                 },
                 Object {
                   "cursor": "Wzhd",
+                  "likedAt": "2021-05-23T19:02:30.578922+00:00",
                   "node": Object {
                     "fullName": "Michel Mangam",
                     "id": "WyJQZXJzb24iLDhd",
@@ -219,6 +221,7 @@ Object {
               "edges": Array [
                 Object {
                   "cursor": "WzJd",
+                  "likedAt": "2021-05-23T19:02:30.578922+00:00",
                   "node": Object {
                     "fullName": "Shena Inker",
                     "id": "WyJQZXJzb24iLDJd",
@@ -226,6 +229,7 @@ Object {
                 },
                 Object {
                   "cursor": "WzVd",
+                  "likedAt": "2021-05-23T19:02:30.578922+00:00",
                   "node": Object {
                     "fullName": "Nerti Tollfree",
                     "id": "WyJQZXJzb24iLDVd",
@@ -293,6 +297,7 @@ Object {
               "edges": Array [
                 Object {
                   "cursor": "WzRd",
+                  "likedAt": "2021-05-23T19:02:30.578922+00:00",
                   "node": Object {
                     "fullName": "Euell Wordington",
                     "id": "WyJQZXJzb24iLDRd",
@@ -300,6 +305,7 @@ Object {
                 },
                 Object {
                   "cursor": "Wzhd",
+                  "likedAt": "2021-05-23T19:02:30.578922+00:00",
                   "node": Object {
                     "fullName": "Michel Mangam",
                     "id": "WyJQZXJzb24iLDhd",
@@ -345,6 +351,7 @@ Object {
               "edges": Array [
                 Object {
                   "cursor": "WzFd",
+                  "likedAt": "2021-05-23T19:02:30.578922+00:00",
                   "node": Object {
                     "fullName": "Tedi Flinn",
                     "id": "WyJQZXJzb24iLDFd",
@@ -352,6 +359,7 @@ Object {
                 },
                 Object {
                   "cursor": "WzJd",
+                  "likedAt": "2021-05-23T19:02:30.578922+00:00",
                   "node": Object {
                     "fullName": "Shena Inker",
                     "id": "WyJQZXJzb24iLDJd",
@@ -410,6 +418,7 @@ Object {
               "edges": Array [
                 Object {
                   "cursor": "WzVd",
+                  "likedAt": "2021-05-23T19:02:30.578922+00:00",
                   "node": Object {
                     "fullName": "Nerti Tollfree",
                     "id": "WyJQZXJzb24iLDVd",
@@ -417,6 +426,7 @@ Object {
                 },
                 Object {
                   "cursor": "Wzld",
+                  "likedAt": "2021-05-23T19:02:30.578922+00:00",
                   "node": Object {
                     "fullName": "Delora Prop",
                     "id": "WyJQZXJzb24iLDld",
@@ -450,6 +460,7 @@ Object {
               "edges": Array [
                 Object {
                   "cursor": "Wzdd",
+                  "likedAt": "2021-05-23T19:02:30.578922+00:00",
                   "node": Object {
                     "fullName": "Crystie Mellmoth",
                     "id": "WyJQZXJzb24iLDdd",
@@ -987,6 +998,7 @@ type PostLikedByConnection {
 }
 
 type PostLikedByEdge {
+  likedAt: String!
   cursor: String!
   node: Person!
 }
@@ -1020,11 +1032,16 @@ Object {
     "id": [Function],
     "posts": [Function],
   },
+  "PersonPostsEdge": Object {},
   "Post": Object {
     "body": [Function],
     "comments": [Function],
     "id": [Function],
     "likedBy": [Function],
+  },
+  "PostCommentsEdge": Object {},
+  "PostLikedByEdge": Object {
+    "likedAt": [Function],
   },
 }
 `;
